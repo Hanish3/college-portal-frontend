@@ -1,19 +1,47 @@
+/* --- Global Styles & Light Background --- */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    margin: 0;
+    /* Light background to make the white glass stand out */
+    background: #eef2f7;
+    background-attachment: fixed;
+    color: #333; /* Default text color is dark */
+    min-height: 100vh;
+}
+
+/* Helper to center the login page */
+#login-page-container {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    margin: 0;
+}
+
+/* --- White Glassmorphism Containers --- */
+.login-container,
+.dashboard-container,
+.profile-container {
+    width: 90%;
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2.5rem;
+    
+    /* The White Glass Effect! */
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px); /* For Safari */
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1); /* Softer shadow */
 }
 
 .login-container {
-    background: #fff;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 300px;
+    width: 350px;
+}
+
+/* --- Typography (Dark Text) --- */
+h1, h2, h3 {
+    color: #111;
 }
 
 h2 {
@@ -21,173 +49,121 @@ h2 {
     margin-bottom: 1.5rem;
 }
 
-form div {
-    margin-bottom: 1rem;
+.profile-container h1 {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    padding-bottom: 0.5rem;
+}
+
+.profile-container h2,
+.dashboard-column h2 {
+    color: #0056b3; /* A nice blue for headers */
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    padding-bottom: 0.5rem;
+}
+
+p {
+    color: #555;
+    line-height: 1.6;
 }
 
 label {
     display: block;
     margin-bottom: 0.5rem;
+    color: #333;
 }
 
+/* --- Inputs & Buttons (Light Theme) --- */
 input[type="email"],
-input[type="password"] {
+input[type="password"],
+.search-input {
     width: 100%;
-    padding: 0.5rem;
-    box-sizing: border-box; /* Important for padding to work nicely */
-    border: 1px solid #ccc;
+    padding: 0.75rem 1rem;
+    box-sizing: border-box; 
+    border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 4px;
+    background: rgba(255, 255, 255, 0.5); /* White, slightly transparent */
+    color: #333; /* User's typed text */
+    font-size: 1rem;
 }
 
+input::placeholder,
+.search-input::placeholder {
+    color: #888;
+}
+
+/* General Button Style */
 button {
     width: 100%;
     padding: 0.75rem;
-    background-color: #007bff;
+    background: #007bff; /* Solid blue */
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     font-size: 1rem;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
 }
 
 button:hover {
-    background-color: #0056b3;
+    background: #0056b3; /* Darker blue on hover */
 }
 
-/* --- Dashboard & Search Styles --- */
-
-.dashboard-container {
-    width: 90%;
-    max-width: 800px;
-    margin: 2rem auto;
-    padding: 2rem;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+/* --- Navbar (Light Glass) --- */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    color: #333;
+    /* Light Glassy Navbar */
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
-.search-container {
-    margin-bottom: 1.5rem;
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #0056b3;
+    text-decoration: none;
 }
 
+.logout-button {
+    width: auto; /* Override 100% width */
+    padding: 0.5rem 1rem;
+    background: #d9534f; /* Solid Red */
+    border: none;
+}
+
+.logout-button:hover {
+    background: #c9302c;
+}
+
+/* --- Search Bar --- */
 .search-container form {
     display: flex;
 }
 
 .search-input {
-    flex-grow: 1; /* Takes up remaining space */
-    padding: 0.75rem;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 4px 0 0 4px; /* Rounded on the left */
+    flex-grow: 1;
+    border-radius: 4px 0 0 4px;
 }
 
 .search-button {
-    padding: 0.75rem 1.5rem;
-    background-color: #28a745; /* Green */
-    color: white;
+    width: auto; /* Override 100% width */
+    border-radius: 0 4px 4px 0;
+    background: #28a745; /* Solid Green */
     border: none;
-    border-radius: 0 4px 4px 0; /* Rounded on the right */
-    cursor: pointer;
-    font-size: 1rem;
 }
 
 .search-button:hover {
-    background-color: #218838;
+    background: #218838;
 }
 
-.results-container ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.student-item {
-    display: flex;
-    align-items: center;
-    padding: 1rem;
-    border: 1px solid #eee;
-    border-radius: 4px;
-    margin-bottom: 0.5rem;
-}
-
-.avatar {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    margin-right: 1rem;
-    background: #f0f0f0; /* Placeholder bg */
-}
-
-.student-info {
-    display: flex;
-    flex-direction: column;
-}
-
-.student-info strong {
-    font-size: 1.1rem;
-}
-
-.student-info span {
-    color: #666;
-}
-
-/* --- Student Link (for search results) --- */
-.student-link {
-    text-decoration: none;
-    color: inherit; /* Inherit the text color */
-}
-
-.student-link:hover .student-item {
-    background-color: #f9f9f9; /* Slight hover effect */
-    border-color: #007bff;
-}
-
-
-/* --- Profile Page Styles --- */
-.profile-container {
-    width: 90%;
-    max-width: 800px;
-    margin: 2rem auto;
-    padding: 2rem;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.profile-container h1 {
-    border-bottom: 2px solid #eee;
-    padding-bottom: 0.5rem;
-    margin-bottom: 1.5rem;
-}
-
-.profile-container h2 {
-    color: #007bff;
-    margin-top: 2rem;
-}
-
-.profile-avatar {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    background: #f0f0f0;
-    display: block;
-    margin-bottom: 1rem;
-}
-
-.back-link {
-    display: inline-block;
-    margin-bottom: 1.5rem;
-    color: #007bff;
-    text-decoration: none;
-}
-
-.back-link:hover {
-    text-decoration: underline;
-}
-
-/* --- Student Dashboard Styles --- */
-
+/* --- Dashboard & Item Cards --- */
 .dashboard-columns {
     display: flex;
     flex-direction: row;
@@ -195,37 +171,46 @@ button:hover {
 }
 
 .dashboard-column {
-    flex: 1; /* Each column takes up 50% of the space */
-}
-
-.dashboard-column h2 {
-    color: #007bff;
-    border-bottom: 2px solid #eee;
-    padding-bottom: 0.5rem;
+    flex: 1;
 }
 
 .item-list {
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    max-height: 500px; /* Give a max height for scrolling */
-    overflow-y: auto; /* Add scrollbar if content overflows */
+    max-height: 500px;
+    overflow-y: auto;
     padding-right: 10px;
 }
 
-.item-card {
-    background: #fdfdfd;
-    border: 1px solid #eee;
-    padding: 1rem;
+/* Whiter cards on top of the glass container */
+.item-card,
+.course-card,
+.student-item {
+    background: rgba(255, 255, 255, 0.3); /* Whiter, subtle */
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.item-card h3 {
-    margin-top: 0;
+    padding: 1rem 1.5rem;
+    color: #333;
     margin-bottom: 0.5rem;
 }
 
+.student-link {
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s ease-in-out;
+}
+.student-link:hover .student-item {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: #007bff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.item-card h3, .course-card h3 {
+    margin-top: 0;
+    color: #111;
+}
 .item-card .item-date {
     font-size: 0.9rem;
     font-weight: bold;
@@ -233,110 +218,44 @@ button:hover {
     margin-bottom: 0.5rem;
 }
 
-/* --- Curriculum Page Styles --- */
-.course-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+/* --- Profile Page --- */
+.profile-avatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    display: block;
+    margin-bottom: 1rem;
 }
 
-.course-card {
-    background: #fff;
-    border: 1px solid #eee;
-    padding: 1.5rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+.back-link,
+.nav-link {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+    transition: transform 0.2s ease;
 }
-
-.course-card h3 {
-    margin-top: 0;
-    color: #333;
+.back-link:hover,
+.nav-link:hover {
+    text-decoration: underline;
+    transform: translateX(-3px);
 }
-
-/* --- Navigation Link Style (on Dashboard) --- */
 .nav-link {
     display: block;
     text-align: right;
-    font-weight: bold;
-    color: #007bff;
-    text-decoration: none;
-    font-size: 1.1rem;
-    margin-bottom: -1rem; /* Pull it up a bit */
+    margin-bottom: -1rem; 
 }
-
 .nav-link:hover {
-    text-decoration: underline;
+    transform: translateX(3px);
 }
 
-/* --- Navbar Styles --- */
-.navbar {
-    display: flex;
-    justify-content: space-between; /* Pushes brand left, button right */
-    align-items: center;
-    background-color: #333;
-    padding: 1rem 2rem;
-    color: white;
+.student-info strong {
+    font-size: 1.1rem;
+    color: #111;
 }
-
-.navbar-brand {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: white;
-    text-decoration: none;
-}
-
-.logout-button {
-    background-color: #d9534f; /* Red */
-    color: white;
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1rem;
-}
-
-.logout-button:hover {
-    background-color: #c9302c;
-}
-
-/* --- Fix Page Spacing --- */
-/* We need to override the 'body' styles for logged-in pages */
-/* Add this new class to our page containers */
-.page-container {
-    width: 90%;
-    max-width: 800px;
-    margin: 2rem auto;
-    padding: 2rem;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* We need to tell 'body' to stop centering everything */
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    /* REMOVE flex, justify-content, align-items, height */
-    margin: 0;
-}
-
-/* We'll use .dashboard-container for the new styles */
-.dashboard-container,
-.profile-container {
-    width: 90%;
-    max-width: 800px;
-    margin: 2rem auto;
-    padding: 2rem;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* Make sure the login page still works */
-/* We'll wrap the login component in a div with this id */
-#login-page-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+.student-info span {
+    color: #555;
 }

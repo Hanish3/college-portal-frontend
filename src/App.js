@@ -6,37 +6,35 @@ import Login from './components/Login';
 import StudentDashboard from './components/StudentDashboard';
 import AdminDashboard from './components/AdminDashboard';
 import StudentProfile from './components/StudentProfile';
-import Curriculum from './components/Curriculum'; // Import our new page
+import Curriculum from './components/Curriculum';
 
 function App() {
     return (
         <Router>
-            <div className="App">
-                <Routes>
-                    {/* The login page is our default route */}
-                    <Route 
-                        path="/login" 
-                        element={
-                            <div id="login-page-container"> {/* <-- WRAPPED LOGIN COMPONENT */}
-                                <Login />
-                            </div>
-                        } 
-                    />
-                    
-                    {/* Dashboard routes */}
-                    <Route path="/student-dashboard" element={<StudentDashboard />} />
-                    <Route path="/admin-dashboard" element={<AdminDashboard />} />
+            <Routes>
+                {/* The login page is our default route */}
+                <Route 
+                    path="/login" 
+                    element={
+                        <div id="login-page-container">
+                            <Login />
+                        </div>
+                    } 
+                />
+                
+                {/* Dashboard routes */}
+                <Route path="/student-dashboard" element={<StudentDashboard />} />
+                <Route path="/admin-dashboard" element={<AdminDashboard />} />
 
-                    {/* Admin's detail view */}
-                    <Route path="/student/:userId" element={<StudentProfile />} />
+                {/* Admin's detail view */}
+                <Route path="/student/:userId" element={<StudentProfile />} />
 
-                    {/* Student's curriculum view */}
-                    <Route path="/curriculum" element={<Curriculum />} />
+                {/* Student's curriculum view */}
+                <Route path="/curriculum" element={<Curriculum />} />
 
-                    {/* Redirects any unknown URL to the login page */}
-                    <Route path="*" element={<Navigate to="/login" />} />
-                </Routes>
-            </div>
+                {/* Redirects any unknown URL to the login page */}
+                <Route path="*" element={<Navigate to="/login" />} />
+            </Routes>
         </Router>
     );
 }
