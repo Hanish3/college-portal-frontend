@@ -1,10 +1,102 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const StudentDashboard = () => {
+    // Create state to hold our data
+    const [events, setEvents] = useState([]);
+    const [notifications, setNotifications] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    // This 'useEffect' hook runs once when the component loads
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                // 1. Get the token from localStorage
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    setLoading(false);
+                    return; // Can't fetch data if not logged in
+                }
+
+                // 2. Create the auth headers
+                const config = {
+                    headers: {
+                        'x-auth-token': token,
+                    },
+                };
+
+                // 3. Fetch both sets of data in parallel
+                const [eventsRes, notificationsRes] = await Promise.all([
+                    axios.get('http://localhost:5000/api/events', config),
+                    axios.get('http://localhost:5000/api/notifications', config)
+                ]);
+
+                // 4. Set the data in our state
+                setEvents(eventsRes.data);
+                setNotifications(notificationsRes.data);
+                setLoading(false);
+
+            } catch (err) {
+                console.error('Error fetching dashboard data:', err);
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []); // The empty array [] means this runs only once
+
+    // Helper function to format the date
+    const formatDate = (dateString) => {
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return new Date(dateString).toLocaleDateString(undefined, options);
+    };
+
+    if (loading) {
+        return <div className="dashboard-container"><p>Loading dashboard...</p></div>;
+    }
+
     return (
-        <div>
+        <div className="dashboard-container">
             <h1>Welcome, Student!</h1>
-            <p>This is your dashboard. You can see events and notifications here.</p>
+            <p>This is your dashboard. See your events and notifications below.</p>
+
+            <div className="dashboard-columns">
+                {/* --- EVENTS COLUMN --- */}
+                <div className="dashboard-column">
+                    <h2>Upcoming Events</h2>
+                    <div className="item-list">
+                        {events.length > 0 ? (
+                            events.map(event => (
+                                <div key={event._id} className="item-card">
+                                    <h3>{event.title}</h3>
+                                    <p className="item-date">{formatDate(event.date)}</p>
+                                    <p>{event.description}</p>
+                                </div>
+                            ))
+                        ) : (
+                            <p>No upcoming events.</p>
+                        )}
+                    </div>
+                </div>
+
+                {/* --- NOTIFICATIONS COLUMN --- */}
+                <div className="dashboard-column">
+                    <h2>Notifications</h2>
+                    <div className="item-list">
+                        {notifications.length > 0 ? (
+                            notifications.map(notification => (
+                                <div key={notification._id} className="item-card">
+                                    <h3>{notification.title}</h3>
+                                    <p className="item-date">{formatDate(notification.date)}</p>
+                                    <p>{notification.message}</p>
+                                </div>
+                            ))
+                        ) : (
+                            <p>No new notifications.</p>
+                        )}
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };
