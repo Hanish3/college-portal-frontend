@@ -1,37 +1,50 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom'; // IMPORT THIS
+import { jwtDecode } from 'jwt-decode'; // IMPORT THIS
 
 const Login = () => {
-    // 'formData' will hold the email and password from our form
     const [formData, setFormData] = useState({
         email: '',
         password: '',
     });
 
-    // This function runs every time the user types in an input box
+    const navigate = useNavigate(); // ADD THIS HOOK
+
     const onChange = e => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    // This function runs when the user clicks the "Login" button
+    // --- THIS IS THE UPDATED ONSUBMIT FUNCTION ---
     const onSubmit = async e => {
-        e.preventDefault(); // Prevents the form from refreshing the page
+        e.preventDefault();
 
         try {
-            // We're 'POST'ing the formData to our backend's login endpoint
             const res = await axios.post(
-                'http://localhost:5000/api/auth/login', // Our backend API URL
-                formData // The email and password
+                'http://localhost:5000/api/auth/login',
+                formData
             );
 
-            // If login is successful, the server sends back a token
-            console.log('Login successful!', res.data);
-            alert('Login Successful!');
-            // In a real app, we would save this token:
-            // localStorage.setItem('token', res.data.token);
+            // --- ALL THIS IS NEW ---
+            // 1. Get the token from the response
+            const { token } = res.data;
+
+            // 2. Save the token to localStorage (so we can stay logged in)
+            localStorage.setItem('token', token);
+
+            // 3. Decode the token to get the user's role
+            const decoded = jwtDecode(token);
+            const userRole = decoded.user.role; // This gets 'student', 'admin', etc.
+
+            // 4. Redirect based on the role
+            if (userRole === 'admin' || userRole === 'faculty') {
+                navigate('/admin-dashboard');
+            } else {
+                navigate('/student-dashboard');
+            }
+            // --- END OF NEW CODE ---
 
         } catch (err) {
-            // If the server sends a 400 (Invalid Credentials) or 500 error
             console.error(err.response.data);
             alert('Login Failed: ' + err.response.data.msg);
         }
@@ -39,6 +52,7 @@ const Login = () => {
 
     return (
         <div className="login-container">
+            {/* ...the rest of your form JSX is unchanged... */}
             <h2>Login</h2>
             <form onSubmit={onSubmit}>
                 <div>
