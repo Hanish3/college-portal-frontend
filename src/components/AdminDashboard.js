@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom'; // Already here
-import Navbar from './Navbar'; // <-- 1. IMPORTED NAVBAR
+import { Link } from 'react-router-dom';
+import Navbar from './Navbar'; // <-- This is correct
 
 const AdminDashboard = () => {
     // ... all your state and onSearch code ...
@@ -51,8 +51,8 @@ const AdminDashboard = () => {
     };
 
     return (
-        <div> {/* <-- 2. WRAPPED IN A PARENT DIV */}
-            <Navbar /> {/* <-- 3. ADDED THE NAVBAR */}
+        <div> {/* <-- This is correct */}
+            <Navbar /> {/* <-- This is correct */}
             
             {/* The rest of your admin dashboard JSX */}
             <div className="dashboard-container">
@@ -100,4 +100,5 @@ const AdminDashboard = () => {
     );
 };
 
-export export default AdminDashboard;
+// THIS IS THE CORRECTED LINE
+export default AdminDashboard;
