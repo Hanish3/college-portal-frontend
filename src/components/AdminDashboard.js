@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom'; // <-- 1. IMPORTED THIS
 
 const AdminDashboard = () => {
     // State to hold the search term
@@ -74,17 +75,21 @@ const AdminDashboard = () => {
                 {students.length > 0 && (
                     <ul>
                         {students.map((student) => (
-                            <li key={student._id} className="student-item">
-                                <img 
-                                    src="default-avatar.png" // We'll use a placeholder for now
-                                    alt="avatar" 
-                                    className="avatar" 
-                                />
-                                <div className="student-info">
-                                    <strong>{student.name}</strong>
-                                    <span>{student.email}</span>
-                                </div>
-                            </li>
+                            // 2. WRAPPED THE 'li' IN A 'Link'
+                            // The 'student.user' field holds the User ID
+                            <Link to={`/student/${student.user}`} key={student._id} className="student-link">
+                                <li className="student-item">
+                                    <img 
+                                        src="default-avatar.png" // We'll use a placeholder for now
+                                        alt="avatar" 
+                                        className="avatar" 
+                                    />
+                                    <div className="student-info">
+                                        <strong>{student.name}</strong>
+                                        <span>{student.email}</span>
+                                    </div>
+                                </li>
+                            </Link>
                         ))}
                     </ul>
                 )}
