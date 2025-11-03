@@ -14,7 +14,14 @@ function App() {
             <div className="App">
                 <Routes>
                     {/* The login page is our default route */}
-                    <Route path="/login" element={<Login />} />
+                    <Route 
+                        path="/login" 
+                        element={
+                            <div id="login-page-container"> {/* <-- WRAPPED LOGIN COMPONENT */}
+                                <Login />
+                            </div>
+                        } 
+                    />
                     
                     {/* Dashboard routes */}
                     <Route path="/student-dashboard" element={<StudentDashboard />} />

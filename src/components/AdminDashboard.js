@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom'; // <-- 1. IMPORTED THIS
+import { Link } from 'react-router-dom'; // Already here
+import Navbar from './Navbar'; // <-- 1. IMPORTED NAVBAR
 
 const AdminDashboard = () => {
-    // State to hold the search term
+    // ... all your state and onSearch code ...
     const [searchTerm, setSearchTerm] = useState('');
-    // State to hold the student results
     const [students, setStudents] = useState([]);
-    // State for loading or error messages
     const [message, setMessage] = useState('Search for students by name.');
 
     const onSearch = async (e) => {
@@ -52,50 +51,53 @@ const AdminDashboard = () => {
     };
 
     return (
-        <div className="dashboard-container">
-            <h1>Welcome, Admin/Faculty!</h1>
+        <div> {/* <-- 2. WRAPPED IN A PARENT DIV */}
+            <Navbar /> {/* <-- 3. ADDED THE NAVBAR */}
             
-            <div className="search-container">
-                <form onSubmit={onSearch}>
-                    <input
-                        type="text"
-                        placeholder="Search student name..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="search-input"
-                    />
-                    <button type="submit" className="search-button">Search</button>
-                </form>
-            </div>
+            {/* The rest of your admin dashboard JSX */}
+            <div className="dashboard-container">
+                <h1>Welcome, Admin/Faculty!</h1>
+                
+                <div className="search-container">
+                    <form onSubmit={onSearch}>
+                        <input
+                            type="text"
+                            placeholder="Search student name..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="search-input"
+                        />
+                        <button type="submit" className="search-button">Search</button>
+                    </form>
+                </div>
 
-            <div className="results-container">
-                {/* Show a message or the list of students */}
-                {message && <p>{message}</p>}
+                <div className="results-container">
+                    {/* Show a message or the list of students */}
+                    {message && <p>{message}</p>}
 
-                {students.length > 0 && (
-                    <ul>
-                        {students.map((student) => (
-                            // 2. WRAPPED THE 'li' IN A 'Link'
-                            // The 'student.user' field holds the User ID
-                            <Link to={`/student/${student.user}`} key={student._id} className="student-link">
-                                <li className="student-item">
-                                    <img 
-                                        src="default-avatar.png" // We'll use a placeholder for now
-                                        alt="avatar" 
-                                        className="avatar" 
-                                    />
-                                    <div className="student-info">
-                                        <strong>{student.name}</strong>
-                                        <span>{student.email}</span>
-                                    </div>
-                                </li>
-                            </Link>
-                        ))}
-                    </ul>
-                )}
+                    {students.length > 0 && (
+                        <ul>
+                            {students.map((student) => (
+                                <Link to={`/student/${student.user}`} key={student._id} className="student-link">
+                                    <li className="student-item">
+                                        <img 
+                                            src="default-avatar.png" // We'll use a placeholder for now
+                                            alt="avatar" 
+                                            className="avatar" 
+                                        />
+                                        <div className="student-info">
+                                            <strong>{student.name}</strong>
+                                            <span>{student.email}</span>
+                                        </div>
+                                    </li>
+                                </Link>
+                            ))}
+                        </ul>
+                    )}
+                </div>
             </div>
         </div>
     );
 };
 
-export default AdminDashboard;
+export export default AdminDashboard;

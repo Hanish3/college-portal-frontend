@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom'; // <-- 1. IMPORTED THIS
+import { Link } from 'react-router-dom'; // Already here
+import Navbar from './Navbar'; // <-- 1. IMPORTED NAVBAR
 
 const StudentDashboard = () => {
-    // Create state to hold our data
+    // ... all your state and useEffect code ...
     const [events, setEvents] = useState([]);
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // This 'useEffect' hook runs once when the component loads
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -53,51 +53,61 @@ const StudentDashboard = () => {
     };
 
     if (loading) {
-        return <div className="dashboard-container"><p>Loading dashboard...</p></div>;
+        // Also wrap the loading state with Navbar
+        return (
+            <div>
+                <Navbar />
+                <div className="dashboard-container"><p>Loading dashboard...</p></div>
+            </div>
+        );
     }
 
     return (
-        <div className="dashboard-container">
-            {/* 2. ADDED THIS LINK */}
-            <Link to="/curriculum" className="nav-link">View Curriculum →</Link>
+        <div> {/* <-- 2. WRAPPED IN A PARENT DIV */}
+            <Navbar /> {/* <-- 3. ADDED THE NAVBAR */}
+            
+            {/* The rest of your dashboard component */}
+            <div className="dashboard-container">
+                <Link to="/curriculum" className="nav-link">View Curriculum →</Link>
 
-            <h1>Welcome, Student!</h1>
-            <p>This is your dashboard. See your events and notifications below.</p>
+                <h1>Welcome, Student!</h1>
+                <p>This is your dashboard. See your events and notifications below.</p>
 
-            <div className="dashboard-columns">
-                {/* --- EVENTS COLUMN --- */}
-                <div className="dashboard-column">
-                    <h2>Upcoming Events</h2>
-                    <div className="item-list">
-                        {events.length > 0 ? (
-                            events.map(event => (
-                                <div key={event._id} className="item-card">
-                                    <h3>{event.title}</h3>
-                                    <p className="item-date">{formatDate(event.date)}</p>
-                                    <p>{event.description}</p>
-                                </div>
-                            ))
-                        ) : (
-                            <p>No upcoming events.</p>
-                        )}
+                <div className="dashboard-columns">
+                    {/* --- EVENTS COLUMN --- */}
+                    <div className="dashboard-column">
+                        <h2>Upcoming Events</h2>
+                        <div className="item-list">
+                            {events.length > 0 ? (
+                                events.map(event => (
+                                    <div key={event._id} className="item-card">
+                                        <h3>{event.title}</h3>
+                                        <p className="item-date">{formatDate(event.date)}</p>
+                                        <p>{event.description}</p>
+                                    </div>
+                                ))
+                            ) : (
+                                <p>No upcoming events.</p>
+                            )}
+                        </div>
                     </div>
-                </div>
 
-                {/* --- NOTIFICATIONS COLUMN --- */}
-                <div className="dashboard-column">
-                    <h2>Notifications</h2>
-                    <div className="item-list">
-                        {notifications.length > 0 ? (
-                            notifications.map(notification => (
-                                <div key={notification._id} className="item-card">
-                                    <h3>{notification.title}</h3>
-                                    <p className="item-date">{formatDate(notification.date)}</p>
-                                    <p>{notification.message}</p>
-                                </div>
-                            ))
-                        ) : (
-                            <p>No new notifications.</p>
-                        )}
+                    {/* --- NOTIFICATIONS COLUMN --- */}
+                    <div className="dashboard-column">
+                        <h2>Notifications</h2>
+                        <div className="item-list">
+                            {notifications.length > 0 ? (
+                                notifications.map(notification => (
+                                    <div key={notification._id} className="item-card">
+                                        <h3>{notification.title}</h3>
+                                        <p className="item-date">{formatDate(notification.date)}</p>
+                                        <p>{notification.message}</p>
+                                    </div>
+                                ))
+                            ) : (
+                                <p>No new notifications.</p>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>

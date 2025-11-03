@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import Navbar from './Navbar'; // <-- 1. IMPORTED NAVBAR
 
 const Curriculum = () => {
     const [courses, setCourses] = useState([]);
@@ -30,26 +31,34 @@ const Curriculum = () => {
     }, []);
 
     if (loading) {
-        return <div className="dashboard-container"><p>Loading curriculum...</p></div>;
+        return (
+            <div> {/* WRAPPED IN A DIV */}
+                <Navbar /> {/* ADDED NAVBAR */}
+                <div className="dashboard-container"><p>Loading curriculum...</p></div>
+            </div>
+        );
     }
 
     return (
-        <div className="dashboard-container">
-            <Link to="/student-dashboard" className="back-link">← Back to Dashboard</Link>
-            <h1>Course Curriculum</h1>
-            <p>Here is the list of available courses.</p>
+        <div> {/* <-- 2. WRAP in a div */}
+            <Navbar /> {/* <-- 3. ADD THE NAVBAR */}
+            <div className="dashboard-container">
+                <Link to="/student-dashboard" className="back-link">← Back to Dashboard</Link>
+                <h1>Course Curriculum</h1>
+                <p>Here is the list of available courses.</p>
 
-            <div className="course-list">
-                {courses.length > 0 ? (
-                    courses.map(course => (
-                        <div key={course._id} className="course-card">
-                            <h3>{course.code} - {course.title}</h3>
-                            <p>{course.description}</p>
-                        </div>
-                    ))
-                ) : (
-                    <p>No courses have been added yet.</p>
-                )}
+                <div className="course-list">
+                    {courses.length > 0 ? (
+                        courses.map(course => (
+                            <div key={course._id} className="course-card">
+                                <h3>{course.code} - {course.title}</h3>
+                                <p>{course.description}</p>
+                            </div>
+                        ))
+                    ) : (
+                        <p>No courses have been added yet.</p>
+                    )}
+                </div>
             </div>
         </div>
     );
