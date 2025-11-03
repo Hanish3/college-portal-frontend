@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom'; // <-- 1. IMPORTED THIS
 
 const StudentDashboard = () => {
     // Create state to hold our data
@@ -57,6 +58,9 @@ const StudentDashboard = () => {
 
     return (
         <div className="dashboard-container">
+            {/* 2. ADDED THIS LINK */}
+            <Link to="/curriculum" className="nav-link">View Curriculum →</Link>
+
             <h1>Welcome, Student!</h1>
             <p>This is your dashboard. See your events and notifications below.</p>
 
