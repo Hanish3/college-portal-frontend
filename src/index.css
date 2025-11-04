@@ -328,3 +328,28 @@ button:hover {
     margin-top: 1.5rem;
     color: #0056b3;
 }
+
+/* --- Course Card Delete Button Styles --- */
+.course-card {
+    /* Use flexbox to separate info and button */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.course-card-info {
+    flex-grow: 1; /* Lets the info take up all available space */
+}
+
+.delete-button {
+    width: auto; /* Override default 100% width */
+    padding: 0.5rem 1rem;
+    background-color: #d9534f; /* Red */
+    font-size: 0.9rem;
+    flex-shrink: 0; /* Prevents button from shrinking */
+}
+
+.delete-button:hover {
+    background-color: #c9302c; /* Darker red */
+}

@@ -63,9 +63,17 @@ const AdminDashboard = () => {
                         Create New Event
                     </Link>
                     
-                    {/* --- ADDED NEW LINK --- */}
                     <Link to="/admin-create-notification" className="action-button" style={{backgroundColor: '#f0ad4e'}}>
                         Send Notification
+                    </Link>
+
+                    <Link to="/admin-create-course" className="action-button" style={{backgroundColor: '#5bc0de'}}>
+                        Add New Course
+                    </Link>
+
+                    {/* --- ADDED NEW LINK --- */}
+                    <Link to="/curriculum" className="action-button" style={{backgroundColor: '#d9534f'}}>
+                        Manage Curriculum
                     </Link>
                     {/* --- END OF NEW LINK --- */}
                 </div>
@@ -114,3 +122,4 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+
