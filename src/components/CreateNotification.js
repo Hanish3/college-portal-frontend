@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
-import Navbar from './Navbar';
+// import Navbar from './Navbar'; // <-- DELETED
 
 const CreateNotification = () => {
     const [formData, setFormData] = useState({
         title: '',
         message: '',
-        recipient: 'all', // Default to 'all'
+        recipient: 'all',
     });
     const [statusMessage, setStatusMessage] = useState('');
     const navigate = useNavigate();
@@ -33,9 +33,9 @@ const CreateNotification = () => {
             await axios.post('http://localhost:5000/api/notifications', body, config);
             
             setStatusMessage('Notification sent successfully!');
-            setFormData({ title: '', message: '', recipient: 'all' }); // Clear form
+            setFormData({ title: '', message: '', recipient: 'all' });
 
-            setTimeout(() => navigate('/admin-dashboard'), 2000);
+            setTimeout(() => navigate('/admin-manage-notifications'), 2000); // Go to manage page
 
         } catch (err) {
             console.error(err.response.data);
@@ -44,50 +44,48 @@ const CreateNotification = () => {
     };
 
     return (
-        <div>
-            <Navbar />
-            <div className="dashboard-container">
-                <Link to="/admin-dashboard" className="back-link">← Back to Dashboard</Link>
-                <h1>Send New Notification</h1>
-                <p>This message will appear on the student dashboard.</p>
+        // DELETED parent <div> and <Navbar />
+        <div className="dashboard-container">
+            <Link to="/admin-manage-notifications" className="back-link">← Back to Manage Notifications</Link>
+            <h1>Send New Notification</h1>
+            <p>This message will appear on the student dashboard.</p>
 
-                <form className="admin-form" onSubmit={onSubmit}>
-                    <div className="form-group">
-                        <label>Title</label>
-                        <input
-                            type="text"
-                            name="title"
-                            value={title}
-                            onChange={onChange}
-                            required
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label>Message</label>
-                        <textarea
-                            name="message"
-                            value={message}
-                            onChange={onChange}
-                            required
-                        ></textarea>
-                    </div>
-                    <div className="form-group">
-                        <label>Recipient</label>
-                        <input
-                            type="text"
-                            name="recipient"
-                            value={recipient}
-                            onChange={onChange}
-                            placeholder="Type 'all' or a specific User ID"
-                            required
-                        />
-                    </div>
-                    
-                    <button type="submit" className="form-submit-button">Send Notification</button>
-                    
-                    {statusMessage && <p className="form-message">{statusMessage}</p>}
-                </form>
-            </div>
+            <form className="admin-form" onSubmit={onSubmit}>
+                <div className="form-group">
+                    <label>Title</label>
+                    <input
+                        type="text"
+                        name="title"
+                        value={title}
+                        onChange={onChange}
+                        required
+                    />
+                </div>
+                <div className="form-group">
+                    <label>Message</label>
+                    <textarea
+                        name="message"
+                        value={message}
+                        onChange={onChange}
+                        required
+                    ></textarea>
+                </div>
+                <div className="form-group">
+                    <label>Recipient</label>
+                    <input
+                        type="text"
+                        name="recipient"
+                        value={recipient}
+                        onChange={onChange}
+                        placeholder="Type 'all' or a specific User ID"
+                        required
+                    />
+                </div>
+                
+                <button type="submit" className="form-submit-button">Send Notification</button>
+                
+                {statusMessage && <p className="form-message">{statusMessage}</p>}
+            </form>
         </div>
     );
 };

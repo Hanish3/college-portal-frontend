@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
-import Navbar from './Navbar';
+// import Navbar from './Navbar'; // <-- DELETED
 
 const CreateCourse = () => {
     const [formData, setFormData] = useState({
@@ -45,48 +45,46 @@ const CreateCourse = () => {
     };
 
     return (
-        <div>
-            <Navbar />
-            <div className="dashboard-container">
-                <Link to="/admin-dashboard" className="back-link">← Back to Dashboard</Link>
-                <h1>Add New Course</h1>
-                <p>Add a new course to the student curriculum.</p>
+        // DELETED parent <div> and <Navbar />
+        <div className="dashboard-container">
+            <Link to="/curriculum" className="back-link">← Back to Curriculum</Link>
+            <h1>Add New Course</h1>
+            <p>Add a new course to the student curriculum.</p>
 
-                <form className="admin-form" onSubmit={onSubmit}>
-                    <div className="form-group">
-                        <label>Course Code (e.g., CS101)</label>
-                        <input
-                            type="text"
-                            name="code"
-                            value={code}
-                            onChange={onChange}
-                            required
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label>Course Title</label>
-                        <input
-                            type="text"
-                            name="title"
-                            value={title}
-                            onChange={onChange}
-                            required
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label>Description</label>
-                        <textarea
-                            name="description"
-                            value={description}
-                            onChange={onChange}
-                        ></textarea>
-                    </div>
-                    
-                    <button type="submit" className="form-submit-button">Add Course</button>
-                    
-                    {statusMessage && <p className="form-message">{statusMessage}</p>}
-                </form>
-            </div>
+            <form className="admin-form" onSubmit={onSubmit}>
+                <div className="form-group">
+                    <label>Course Code (e.g., CS101)</label>
+                    <input
+                        type="text"
+                        name="code"
+                        value={code}
+                        onChange={onChange}
+                        required
+                    />
+                </div>
+                <div className="form-group">
+                    <label>Course Title</label>
+                    <input
+                        type="text"
+                        name="title"
+                        value={title}
+                        onChange={onChange}
+                        required
+                    />
+                </div>
+                <div className="form-group">
+                    <label>Description</label>
+                    <textarea
+                        name="description"
+                        value={description}
+                        onChange={onChange}
+                    ></textarea>
+                </div>
+                
+                <button type="submit" className="form-submit-button">Add Course</button>
+                
+                {statusMessage && <p className="form-message">{statusMessage}</p>}
+            </form>
         </div>
     );
 };
