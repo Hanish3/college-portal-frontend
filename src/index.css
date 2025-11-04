@@ -353,3 +353,28 @@ button:hover {
 .delete-button:hover {
     background-color: #c9302c; /* Darker red */
 }
+
+/* --- Profile Page Action Buttons --- */
+.profile-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+/* --- Checkbox Style --- */
+.form-group-checkbox {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.form-group-checkbox input[type="checkbox"] {
+    width: auto; /* Don't make checkbox 100% width */
+    margin-right: 0.5rem;
+}
+
+.form-group-checkbox label {
+    margin-bottom: 0; /* Remove default bottom margin */
+    font-weight: normal;
+}

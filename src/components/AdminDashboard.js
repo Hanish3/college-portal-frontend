@@ -59,16 +59,12 @@ const AdminDashboard = () => {
                 <h1>Welcome, Admin/Faculty!</h1>
                 
                 <div className="admin-actions">
-                    <Link to="/admin-create-event" className="action-button">
-                        Create New Event
+                    <Link to="/admin-manage-events" className="action-button">
+                      Manage Events
                     </Link>
                     
-                    <Link to="/admin-create-notification" className="action-button" style={{backgroundColor: '#f0ad4e'}}>
-                        Send Notification
-                    </Link>
-
-                    <Link to="/admin-create-course" className="action-button" style={{backgroundColor: '#5bc0de'}}>
-                        Add New Course
+                    <Link to="/admin-manage-notifications" className="action-button" style={{backgroundColor: '#f0ad4e'}}>
+                      Manage Notifications
                     </Link>
 
                     {/* --- ADDED NEW LINK --- */}

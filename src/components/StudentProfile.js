@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useParams, Link } from 'react-router-dom'; // Import useParams and Link
-import Navbar from './Navbar'; // <-- 1. IMPORTED NAVBAR
+import { useParams, Link } from 'react-router-dom';
+import Navbar from './Navbar';
 
 const StudentProfile = () => {
-    // Get the 'userId' from the URL (e.g., /student/605c7... )
     const { userId } = useParams();
-
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -14,46 +12,31 @@ const StudentProfile = () => {
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                // 1. Get token
                 const token = localStorage.getItem('token');
                 if (!token) {
                     setError('No token, authorization denied.');
                     setLoading(false);
                     return;
                 }
-
-                // 2. Set headers
                 const config = {
-                    headers: {
-                        'x-auth-token': token,
-                    },
+                    headers: { 'x-auth-token': token },
                 };
-
-                // 3. Make the secure GET request using the userId from the URL
-                const res = await axios.get(
-                    `http://localhost:5000/api/students/${userId}`,
-                    config
-                );
-
-                // 4. Set the profile data
+                const res = await axios.get(`http://localhost:5000/api/students/${userId}`, config);
                 setProfile(res.data);
                 setLoading(false);
-
             } catch (err) {
                 console.error(err.response.data);
                 setError(`Error: ${err.response.data.msg}`);
                 setLoading(false);
             }
         };
-
         fetchProfile();
-    }, [userId]); // This 'useEffect' runs whenever the userId in the URL changes
+    }, [userId]);
 
-    // --- Render logic ---
     if (loading) {
         return (
-            <div> {/* WRAPPED IN A DIV */}
-                <Navbar /> {/* ADDED NAVBAR */}
+            <div>
+                <Navbar />
                 <div className="profile-container"><p>Loading profile...</p></div>
             </div>
         );
@@ -61,26 +44,36 @@ const StudentProfile = () => {
 
     if (error) {
         return (
-            <div> {/* WRAPPED IN A DIV */}
-                <Navbar /> {/* ADDED NAVBAR */}
+            <div>
+                <Navbar />
                 <div className="profile-container"><p>{error}</p></div>
             </div>
         );
     }
 
     return (
-        <div> {/* <-- 2. WRAPPED IN A PARENT DIV */}
-            <Navbar /> {/* <-- 3. ADDED THE NAVBAR */}
+        <div>
+            <Navbar />
             <div className="profile-container">
-                <Link to="/admin-dashboard" className="back-link">← Back to Search</Link>
-                
-                <h1>{profile.name}'s Profile</h1>
-                <img src="/default-avatar.png" alt="avatar" className="profile-avatar" />
+                <div className="profile-actions">
+                    <Link to="/admin-dashboard" className="back-link">← Back to Search</Link>
+                    <Link to={`/admin/edit-student/${userId}`} className="action-button">
+                        Edit Profile
+                    </Link>
+                </div>
+
+                {/* --- UPDATED TO SHOW NEW FIELDS --- */}
+                <h1>{profile.firstName} {profile.surname}</h1>
+                <img src={profile.photo || "/default-avatar.png"} alt="avatar" className="profile-avatar" />
 
                 <h2>Personal Details</h2>
-                <p><strong>Email:</strong> {profile.email}</p>
+                <p><strong>First Name:</strong> {profile.firstName}</p>
+                <p><strong>Surname:</strong> {profile.surname}</p>
+                <p><strong>Registered Email:</strong> {profile.email}</p>
+                <p><strong>Personal Email:</strong> {profile.personalEmail || 'Not set'}</p>
+                <p><strong>Mobile Number:</strong> {profile.mobileNumber || 'Not set'}</p>
+                <p><strong>WhatsApp Number:</strong> {profile.isWhatsappSame ? profile.mobileNumber : (profile.whatsappNumber || 'Not set')}</p>
                 
-                {/* This is the sensitive data only admins can see! */}
                 <h2>Confidential Information</h2>
                 <p><strong>Family Income:</strong> ${profile.familyIncome || 'Not set'}</p>
                 
@@ -97,6 +90,7 @@ const StudentProfile = () => {
                 ) : (
                     <p>No certificates uploaded.</p>
                 )}
+                {/* --- END OF UPDATES --- */}
             </div>
         </div>
     );

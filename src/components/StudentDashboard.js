@@ -68,9 +68,15 @@ const StudentDashboard = () => {
             
             {/* The rest of your dashboard component */}
             <div className="dashboard-container">
-                <Link to="/curriculum" className="nav-link">View Curriculum →</Link>
+    {/* We reuse the 'profile-actions' style from the admin page */}
+    <div className="profile-actions"> 
+        <Link to="/student/edit-profile" className="action-button" style={{backgroundColor: '#5bc0de'}}>
+            Edit My Profile
+             </Link>
+             <Link to="/curriculum" className="nav-link">View Curriculum →</Link>
+               </div>
 
-                <h1>Welcome, Student!</h1>
+             <h1>Welcome, Student!</h1>
                 <p>This is your dashboard. See your events and notifications below.</p>
 
                 <div className="dashboard-columns">
