@@ -58,16 +58,20 @@ const AdminDashboard = () => {
             <div className="dashboard-container">
                 <h1>Welcome, Admin/Faculty!</h1>
                 
-                {/* --- 1. ADDED THIS SECTION FOR NEW ACTIONS --- */}
                 <div className="admin-actions">
                     <Link to="/admin-create-event" className="action-button">
                         Create New Event
                     </Link>
+                    
+                    {/* --- ADDED NEW LINK --- */}
+                    <Link to="/admin-create-notification" className="action-button" style={{backgroundColor: '#f0ad4e'}}>
+                        Send Notification
+                    </Link>
+                    {/* --- END OF NEW LINK --- */}
                 </div>
-                {/* --- END OF NEW SECTION --- */}
                 
                 <div className="search-container">
-                    <h2>Search Students</h2> {/* Added heading for clarity */}
+                    <h2>Search Students</h2>
                     <form onSubmit={onSearch}>
                         <input
                             type="text"

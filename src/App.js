@@ -7,7 +7,8 @@ import StudentDashboard from './components/StudentDashboard';
 import AdminDashboard from './components/AdminDashboard';
 import StudentProfile from './components/StudentProfile';
 import Curriculum from './components/Curriculum';
-import CreateEvent from './components/CreateEvent'; // <-- 1. IMPORTED THIS
+import CreateEvent from './components/CreateEvent';
+import CreateNotification from './components/CreateNotification'; // <-- 1. IMPORTED THIS
 
 function App() {
     return (
@@ -32,7 +33,10 @@ function App() {
                     <Route path="/student/:userId" element={<StudentProfile />} />
 
                     {/* Admin's new event creation route */}
-                    <Route path="/admin-create-event" element={<CreateEvent />} /> {/* <-- 2. ADDED NEW ROUTE */}
+                    <Route path="/admin-create-event" element={<CreateEvent />} /> 
+                    
+                    {/* Admin's new notification creation route */}
+                    <Route path="/admin-create-notification" element={<CreateNotification />} /> {/* <-- 2. ADDED NEW ROUTE */}
 
                     {/* Student's curriculum view */}
                     <Route path="/curriculum" element={<Curriculum />} />
