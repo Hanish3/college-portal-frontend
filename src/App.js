@@ -1,7 +1,8 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'react-router-dom';
+import Sidebar from './components/Sidebar.js'; // <-- Import our new Sidebar
 
-// Import all our real components from their files, with the correct .js extension
+// --- Import all our component pages ---
 import Login from './components/Login.js';
 import StudentDashboard from './components/StudentDashboard.js';
 import AdminDashboard from './components/AdminDashboard.js';
@@ -15,21 +16,30 @@ import ManageNotifications from './components/ManageNotifications.js';
 import EditStudentProfile from './components/EditStudentProfile.js';
 import EditMyProfile from './components/EditMyProfile.js';
 
-function App() {
+/**
+ * This is a helper component to manage the layout.
+ * It shows the Sidebar + Page content, or just the Login page.
+ */
+const AppLayout = () => {
+    const location = useLocation();
+    
+    // Check if we are on the login page
+    const isLoginPage = location.pathname === '/login';
+
+    if (isLoginPage) {
+        return (
+            <div id="login-page-container">
+                <Login />
+            </div>
+        );
+    }
+
+    // If not on login, show the main app layout with sidebar
     return (
-        <Router>
-            <div className="App">
+        <div className="app-layout">
+            <Sidebar />
+            <main className="main-content">
                 <Routes>
-                    {/* The login page is our default route */}
-                    <Route 
-                        path="/login" 
-                        element={
-                            <div id="login-page-container">
-                                <Login />
-                            </div>
-                        } 
-                    />
-                    
                     {/* Dashboard routes */}
                     <Route path="/student-dashboard" element={<StudentDashboard />} />
                     <Route path="/admin-dashboard" element={<AdminDashboard />} />
@@ -52,13 +62,22 @@ function App() {
                     {/* Student edit route (editing their own profile) */}
                     <Route path="/student/edit-profile" element={<EditMyProfile />} />
 
-                    {/* Student's curriculum view */}
+                    {/* Shared curriculum view */}
                     <Route path="/curriculum" element={<Curriculum />} />
 
                     {/* Redirects any unknown URL to the login page */}
                     <Route path="*" element={<Navigate to="/login" />} />
                 </Routes>
-            </div>
+            </main>
+        </div>
+    );
+};
+
+// The main App component just sets up the Router
+function App() {
+    return (
+        <Router>
+            <AppLayout />
         </Router>
     );
 }
