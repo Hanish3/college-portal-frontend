@@ -259,3 +259,72 @@ button:hover {
 .student-info span {
     color: #555;
 }
+
+/* --- Admin Forms & Actions --- */
+.admin-actions {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+}
+
+.action-button {
+    text-decoration: none;
+    padding: 0.75rem 1.5rem;
+    background: #007bff;
+    color: white;
+    border-radius: 4px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.action-button:hover {
+    background: #0056b3;
+}
+
+/* Form Styles */
+.admin-form .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.admin-form label {
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.admin-form input,
+.admin-form textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    box-sizing: border-box; 
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.5);
+    color: #333;
+    font-size: 1rem;
+    font-family: inherit;
+}
+
+.admin-form textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.form-submit-button {
+    width: auto;
+    background: #28a745;
+    padding: 0.75rem 2rem;
+}
+.form-submit-button:hover {
+    background: #218838;
+}
+
+.form-message {
+    font-weight: bold;
+    text-align: center;
+    margin-top: 1.5rem;
+    color: #0056b3;
+}

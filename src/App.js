@@ -7,34 +7,40 @@ import StudentDashboard from './components/StudentDashboard';
 import AdminDashboard from './components/AdminDashboard';
 import StudentProfile from './components/StudentProfile';
 import Curriculum from './components/Curriculum';
+import CreateEvent from './components/CreateEvent'; // <-- 1. IMPORTED THIS
 
 function App() {
     return (
         <Router>
-            <Routes>
-                {/* The login page is our default route */}
-                <Route 
-                    path="/login" 
-                    element={
-                        <div id="login-page-container">
-                            <Login />
-                        </div>
-                    } 
-                />
-                
-                {/* Dashboard routes */}
-                <Route path="/student-dashboard" element={<StudentDashboard />} />
-                <Route path="/admin-dashboard" element={<AdminDashboard />} />
+            <div className="App">
+                <Routes>
+                    {/* The login page is our default route */}
+                    <Route 
+                        path="/login" 
+                        element={
+                            <div id="login-page-container">
+                                <Login />
+                            </div>
+                        } 
+                    />
+                    
+                    {/* Dashboard routes */}
+                    <Route path="/student-dashboard" element={<StudentDashboard />} />
+                    <Route path="/admin-dashboard" element={<AdminDashboard />} />
 
-                {/* Admin's detail view */}
-                <Route path="/student/:userId" element={<StudentProfile />} />
+                    {/* Admin's detail view */}
+                    <Route path="/student/:userId" element={<StudentProfile />} />
 
-                {/* Student's curriculum view */}
-                <Route path="/curriculum" element={<Curriculum />} />
+                    {/* Admin's new event creation route */}
+                    <Route path="/admin-create-event" element={<CreateEvent />} /> {/* <-- 2. ADDED NEW ROUTE */}
 
-                {/* Redirects any unknown URL to the login page */}
-                <Route path="*" element={<Navigate to="/login" />} />
-            </Routes>
+                    {/* Student's curriculum view */}
+                    <Route path="/curriculum" element={<Curriculum />} />
+
+                    {/* Redirects any unknown URL to the login page */}
+                    <Route path="*" element={<Navigate to="/login" />} />
+                </Routes>
+            </div>
         </Router>
     );
 }
