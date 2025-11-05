@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-// import Navbar from './Navbar'; // <-- DELETE THIS LINE
+// import Navbar from './Navbar'; // <-- This was already correctly removed
 
 const AdminDashboard = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -9,7 +9,6 @@ const AdminDashboard = () => {
     const [message, setMessage] = useState('Search for students by name.');
 
     const onSearch = async (e) => {
-        // ... (your existing onSearch code is perfect) ...
         e.preventDefault();
         setMessage('Searching...');
         try {
@@ -39,9 +38,10 @@ const AdminDashboard = () => {
     };
 
     return (
-        // REMOVED NAVBAR AND PARENT DIV
         <div className="dashboard-container">
             <h1>Welcome, Admin/Faculty!</h1>
+            
+            {/* --- THIS WHOLE DIV IS NOW DELETED ---
             <div className="admin-actions">
                 <Link to="/admin-manage-events" className="action-button">
                     Manage Events
@@ -53,6 +53,8 @@ const AdminDashboard = () => {
                     Manage Curriculum
                 </Link>
             </div>
+            --- END OF DELETED SECTION --- */}
+            
             <div className="search-container">
                 <h2>Search Students</h2>
                 <form onSubmit={onSearch}>
@@ -79,7 +81,7 @@ const AdminDashboard = () => {
                                         className="avatar" 
                                     />
                                     <div className="student-info">
-                                        <strong>{student.firstName} {student.surname}</strong> {/* Use firstName/surname from your DB model */}
+                                        <strong>{student.firstName} {student.surname}</strong>
                                         <span>{student.email}</span>
                                     </div>
                                 </li>
@@ -93,4 +95,3 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
-

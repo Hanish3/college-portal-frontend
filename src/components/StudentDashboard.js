@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
-// import Navbar from './Navbar'; // <-- DELETE THIS LINE
+// We no longer need the 'Link' component, so we can remove it
+// import { Link } from 'react-router-dom'; 
 
 const StudentDashboard = () => {
     const [events, setEvents] = useState([]);
@@ -9,7 +9,6 @@ const StudentDashboard = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // ... (your existing useEffect code is perfect) ...
         const fetchData = async () => {
             try {
                 const token = localStorage.getItem('token');
@@ -41,19 +40,21 @@ const StudentDashboard = () => {
     };
 
     if (loading) {
-        // REMOVED NAVBAR FROM HERE
         return <div className="dashboard-container"><p>Loading dashboard...</p></div>;
     }
 
     return (
-        // REMOVED NAVBAR AND PARENT DIV
         <div className="dashboard-container">
+            
+            {/* --- THIS WHOLE DIV IS NOW DELETED ---
             <div className="profile-actions"> 
                 <Link to="/student/edit-profile" className="action-button" style={{backgroundColor: '#5bc0de'}}>
                     Edit My Profile
                 </Link>
                 <Link to="/curriculum" className="nav-link">View Curriculum →</Link>
             </div>
+            --- END OF DELETED SECTION --- */}
+
             <h1>Welcome, Student!</h1>
             <p>This is your dashboard. See your events and notifications below.</p>
             <div className="dashboard-columns">

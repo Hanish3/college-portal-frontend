@@ -2,38 +2,76 @@
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     margin: 0;
-    background-color: #181824; 
+    /* --- NEW, DARKER BACKGROUND --- */
+    background-color: #0D1117; /* Replaced #181824 with the darker #0D1117 */
     color: #e0e0e0;
     min-height: 100vh;
     position: relative; 
     overflow-x: hidden;
 }
 
-/* ... (Keep your existing @keyframes for aurora-pulse-1 and aurora-pulse-2) ... */
-@keyframes aurora-pulse-1 {
-    from { transform: scale(0.8) translate(0, 0); opacity: 0.5; }
-    to { transform: scale(1.2) translate(50px, 50px); opacity: 0.8; }
+/* --- NEW @keyframes --- */
+@keyframes next-gen-aurora-1 {
+    0%   { transform: scale(1) translate(0, 0); opacity: 0.2; }
+    50%  { transform: scale(1.5) translate(150px, -100px); opacity: 0.4; }
+    100% { transform: scale(1) translate(0, 0); opacity: 0.2; }
 }
-@keyframes aurora-pulse-2 {
-    from { transform: scale(0.8) translate(0, 0); opacity: 0.5; }
-    to { transform: scale(1.2) translate(-50px, -50px); opacity: 0.8; }
+@keyframes next-gen-aurora-2 {
+    0%   { transform: scale(1) translate(0, 0); opacity: 0.2; }
+    50%  { transform: scale(1.5) translate(-150px, 100px); opacity: 0.4; }
+    100% { transform: scale(1) translate(0, 0); opacity: 0.2; }
 }
+@keyframes next-gen-aurora-3 {
+    0%   { transform: scale(1) translate(0, 0); opacity: 0.1; }
+    50%  { transform: scale(1.5) translate(100px, 100px); opacity: 0.3; }
+    100% { transform: scale(1) translate(0, 0); opacity: 0.1; }
+}
+/* --- END NEW @keyframes --- */
+
+/* --- NEW "Next-Gen" Glowing Border Animation --- */
+@keyframes subtle-glow {
+  from {
+    box-shadow: 0 0 10px rgba(110, 142, 251, 0.2), 0 0 20px rgba(110, 142, 251, 0.2);
+    border-color: rgba(110, 142, 251, 0.3);
+  }
+  to {
+    box-shadow: 0 0 20px rgba(110, 142, 251, 0.4), 0 0 40px rgba(110, 142, 251, 0.3);
+    border-color: rgba(110, 142, 251, 0.5);
+  }
+}
+
+
 body::before, body::after {
     content: '';
     position: fixed;
-    filter: blur(100px);
+    /* --- NEW, SHARPER BLUR --- */
+    filter: blur(80px); /* Replaced 100px with 80px */
     z-index: -1;
-    opacity: 0.7;
+    opacity: 1; /* Opacity is now controlled by the animation */
 }
+
+/* --- NEW, MORE VIBRANT AURORA --- */
 body::before {
-    top: -10%; left: -20%; width: 60%; height: 60%;
-    background: radial-gradient(circle, rgba(167, 119, 227, 0.3), transparent 70%);
-    animation: aurora-pulse-1 15s infinite alternate;
+    top: -20%; left: -20%; width: 60%; height: 60%; /* Updated position/size */
+    background: radial-gradient(circle, rgba(110, 142, 251, 1), transparent 70%); /* Updated color/opacity */
+    animation: next-gen-aurora-1 12s infinite ease-in-out; /* Updated animation */
 }
 body::after {
-    bottom: -20%; right: -20%; width: 60%; height: 60%;
-    background: radial-gradient(circle, rgba(110, 142, 251, 0.3), transparent 70%);
-    animation: aurora-pulse-2 12s infinite alternate;
+    bottom: -20%; right: -20%; width: 60%; height: 60%; /* Updated position/size */
+    background: radial-gradient(circle, rgba(167, 119, 227, 1), transparent 70%); /* Updated color/opacity */
+    animation: next-gen-aurora-2 14s infinite ease-in-out; /* Updated animation */
+}
+
+/* --- ADD A THIRD, SUBTLE AURORA --- */
+.app-layout::before,
+#login-page-container::before {
+    content: '';
+    position: fixed;
+    filter: blur(80px);
+    z-index: -1;
+    top: 30%; left: 30%; width: 40%; height: 40%;
+    background: radial-gradient(circle, rgba(91, 192, 222, 1), transparent 70%);
+    animation: next-gen-aurora-3 10s infinite ease-in-out;
 }
 
 
@@ -55,7 +93,7 @@ body::after {
     background: rgba(24, 24, 36, 0.5); /* Glassy dark */
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    border-right: 1px solid rgba(255, 255, 251, 0.1); /* Updated border-right */
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     z-index: 100;
 }
@@ -79,14 +117,21 @@ body::after {
     gap: 0.75rem;
     text-decoration: none;
 }
-.sidebar-logo {
-    height: 40px;
-    width: auto;
-    border-radius: 6px;
-    background-color: #fff;
-    padding: 2px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+
+/* --- Corrected Sidebar Logo Styling --- */
+/* (This selector was updated to target the img directly) */
+/* The old .sidebar-logo rule is REMOVED/REPLACED by this one: */
+.sidebar-brand img {
+    height: 50px; 
+    width: auto; 
+    max-width: 100%;
+    object-fit: contain; 
+    border-radius: 8px; 
+    background-color: transparent; 
+    padding: 0;
+    box-shadow: none;
 }
+
 .sidebar-brand span {
     font-size: 1.25rem;
     font-weight: bold;
@@ -141,7 +186,6 @@ body::after {
 }
 
 /* --- Dark Glassmorphism Containers (Slightly modified) --- */
-.login-container,
 .dashboard-container,
 .profile-container {
     width: 100%; /* Take up 100% of the main-content width */
@@ -205,6 +249,7 @@ input[type="text"],
 input[type="tel"],
 input[type="number"],
 input[type="date"],
+select, /* <-- ADDED THIS */
 .search-input,
 .admin-form textarea {
     width: 100%;
@@ -370,10 +415,17 @@ button:hover {
 }
 .profile-actions {
     display: flex;
-    justify-content: space-between;
+    /* justify-content: space-between; <-- This was a good default */
+    justify-content: flex-start; /* Let's align buttons to the left */
+    gap: 1rem; /* Add space between buttons */
     align-items: center;
     margin-bottom: 1.5rem;
 }
+/* Make the back-link look less like a button */
+.back-link {
+    margin-right: auto; /* Pushes all other buttons to the right */
+}
+
 
 /* --- Admin Forms --- */
 .admin-actions {
@@ -407,4 +459,387 @@ button:hover {
     margin-bottom: 0;
     font-weight: normal;
     color: #e0e0e0;
+}
+
+/* --- "Cooler" Search Bar Styles --- */
+
+.search-container {
+    margin-bottom: 2rem;
+    margin-top: 1rem;
+}
+
+.search-container form {
+    display: flex;
+    gap: 1rem;
+}
+
+.search-input {
+    flex-grow: 1; 
+    
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px; 
+    color: #e0e0e0;
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #6e8efb; 
+    background: rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 15px rgba(110, 142, 251, 0.3);
+}
+
+.search-button {
+    width: auto;
+    
+    background: rgba(110, 142, 251, 0.5); 
+    border: 1px solid rgba(110, 142, 251, 0.8);
+    border-radius: 6px; 
+    color: #ffffff;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0.75rem 1.5rem; 
+}
+
+.search-button:hover {
+    background: rgba(110, 142, 251, 0.8); 
+    box-shadow: 0 0 15px rgba(110, 142, 251, 0.3);
+}
+
+/* --- Attendance Status Badge Styles --- */
+.attendance-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+.status-present {
+    background-color: rgba(40, 167, 69, 0.2);
+    color: #28a745;
+    border: 1px solid rgba(40, 167, 69, 0.5);
+}
+.status-absent {
+    background-color: rgba(217, 83, 79, 0.2);
+    color: #d9534f;
+    border: 1px solid rgba(217, 83, 79, 0.5);
+}
+.status-late {
+    background-color: rgba(240, 173, 78, 0.2);
+    color: #f0ad4e;
+    border: 1px solid rgba(240, 173, 78, 0.5);
+}
+
+/* --- NEW Attendance Percentage Styles --- */
+
+.attendance-percentage-box {
+    padding-left: 2rem;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    margin-left: 1.5rem;
+    text-align: center;
+    min-width: 100px;
+}
+
+.attendance-percentage-box h2 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin: 0;
+    padding: 0;
+    /* Color is set in-line by the React component */
+}
+
+.attendance-details {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.9rem;
+    color: #a0a0b0;
+    margin-top: 0.5rem;
+}
+
+/* --- Styles for new Attendance Pages --- */
+
+.course-card-link {
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s ease-in-out;
+    display: block;
+}
+
+.course-card-link:hover {
+    transform: translateY(-3px);
+}
+
+.view-details-arrow {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #6e8efb;
+}
+
+.clickable {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.clickable:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.daily-records-container {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.daily-record-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+}
+
+.daily-record-date {
+    font-weight: bold;
+    color: #e0e0e0;
+}
+
+/* --- NEW Course Link Styles --- */
+.course-links {
+    margin-top: 1rem;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap; /* Allows links to wrap on small screens */
+}
+
+.course-link {
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.2s ease;
+}
+
+.course-link:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: #6e8efb;
+    color: #6e8efb;
+}
+
+/* --- NEW Enrollment Button Styles --- */
+.enroll-button {
+    width: auto;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+    background-color: #28a745; /* Green */
+    border: none;
+}
+
+.enroll-button:hover {
+    background-color: #218838;
+}
+
+.leave-button {
+    background-color: #f0ad4e; /* Yellow */
+    color: #333;
+}
+
+.leave-button:hover {
+    background-color: #ec971f;
+}
+
+/* --- NEW Edit/Delete Button Group --- */
+.admin-button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.edit-button {
+    text-decoration: none;
+    text-align: center;
+    width: auto;
+    padding: 0.5rem 1rem;
+    background-color: #5bc0de; /* Info Blue */
+    color: white;
+    font-size: 0.9rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.edit-button:hover {
+    background-color: #31b0d5;
+}
+
+/* Make delete button same size */
+.delete-button {
+    padding: 0.5rem 1rem;
+    margin: 0;
+}
+
+/* --- NEW Login Page Styles --- */
+
+/* 1. This container centers the login box on the page */
+#login-page-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    position: relative;
+    z-index: 1;
+}
+
+/* 2. This is the new two-column login container, replacing .login-box */
+/* You should DELETE the old .login-box rule entirely */
+.login-layout-box {
+    width: 800px; /* Wider to fit two columns */
+    min-height: 500px;
+    display: flex; /* This creates the two-column layout */
+    
+    background: rgba(24, 24, 36, 0.7);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-radius: 12px;
+    border: 1px solid rgba(110, 142, 251, 0.3);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    z-index: 2;
+    animation: subtle-glow 4s infinite alternate ease-in-out;
+    
+    overflow: hidden; /* Important: keeps corners rounded */
+}
+
+/* 3. The Left Side (Form) */
+.login-form-side {
+    flex: 1; /* Takes up half the space */
+    padding: 2.5rem 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* 4. The Right Side (Info & Logo) */
+.login-info-side {
+    flex: 1; /* Takes up the other half */
+    padding: 2.5rem 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    
+    /* A slightly different background for contrast */
+    background: rgba(0, 0, 0, 0.2);
+    border-left: 1px solid rgba(110, 142, 251, 0.2);
+}
+
+.login-info-logo {
+    height: 250px; /* <-- Made it much larger */
+    width: auto;
+    object-fit: contain;
+    margin-bottom: 1.5rem;
+
+    border-radius: 10px;
+    
+    /* --- NEW: Added blended/glowing edges --- */
+    filter: drop-shadow(0 0 10px rgba(173, 216, 230, 0.4))  /* Softer light blue glow */
+            drop-shadow(0 0 15px rgba(167, 119, 227, 0.3)); /* Faint purple glow to blend */
+}
+
+.login-info-side h3 {
+    font-size: 1.75rem;
+    color: #ffffff;
+    margin: 0;
+}
+
+.login-info-text {
+    font-size: 1rem;
+    color: #a0a0b0;
+    line-height: 1.6;
+    margin-top: 0.5rem;
+}
+
+/* 5. Updated header style (no longer centered) */
+.login-header {
+    text-align: center; /* <-- UPDATED: Change 'left' to 'center' */
+    margin-bottom: 2rem;
+}
+
+.login-header h2 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 1.75rem;
+}
+
+.login-header p {
+    margin: 0.25rem 0 0; /* <-- UPDATED: I'll put the small margin back, it looks better when centered */
+    color: #a0a0b0;
+    font-size: 1rem;
+}
+
+/* 6. Styles for inputs and buttons (mostly unchanged, scope narrowed) */
+.login-form-side .form-group {
+    margin-bottom: 1.25rem;
+}
+.login-form-side label {
+    font-size: 0.9rem;
+    color: #c0c0c0;
+}
+.login-form-side input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    box-sizing: border-box; 
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.3);
+    color: #e0e0e0;
+    font-size: 1rem;
+}
+.login-form-side input:focus {
+    border-color: #6e8efb;
+    background: rgba(0, 0, 0, 0.4);
+}
+.login-button {
+    width: 100%;
+    padding: 0.8rem;
+    background: #6e8efb;
+    font-size: 1rem;
+    margin-top: 0.5rem;
+}
+.login-button:hover {
+    background: #5a78d1;
+}
+.login-error-message {
+    color: #d9534f;
+    background: rgba(217, 83, 79, 0.1);
+    border: 1px solid rgba(217, 83, 79, 0.3);
+    padding: 0.75rem;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+
+/* --- Cleanup of old/redundant Login Styles --- */
+
+/* 4. This REPLACES the old .login-container style */
+/* You can delete the old .login-container { ... } rule */
+.login-container {
+    width: 350px;
+    margin: 0; /* Let the new container handle centering */
 }

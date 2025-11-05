@@ -1,23 +1,25 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; // IMPORT THIS
-import { jwtDecode } from 'jwt-decode'; // IMPORT THIS
+import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
+// --- DELETED: The 3D scene import ---
+// import Scene3D from './Scene3D'; 
 
 const Login = () => {
     const [formData, setFormData] = useState({
         email: '',
         password: '',
     });
-
-    const navigate = useNavigate(); // ADD THIS HOOK
+    const [error, setError] = useState('');
+    const navigate = useNavigate();
 
     const onChange = e => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    // --- THIS IS THE UPDATED ONSUBMIT FUNCTION ---
     const onSubmit = async e => {
         e.preventDefault();
+        setError(''); 
 
         try {
             const res = await axios.post(
@@ -25,58 +27,78 @@ const Login = () => {
                 formData
             );
 
-            // --- ALL THIS IS NEW ---
-            // 1. Get the token from the response
             const { token } = res.data;
-
-            // 2. Save the token to localStorage (so we can stay logged in)
             localStorage.setItem('token', token);
-
-            // 3. Decode the token to get the user's role
             const decoded = jwtDecode(token);
-            const userRole = decoded.user.role; // This gets 'student', 'admin', etc.
+            const userRole = decoded.user.role;
 
-            // 4. Redirect based on the role
             if (userRole === 'admin' || userRole === 'faculty') {
                 navigate('/admin-dashboard');
             } else {
                 navigate('/student-dashboard');
             }
-            // --- END OF NEW CODE ---
 
         } catch (err) {
             console.error(err.response.data);
-            alert('Login Failed: ' + err.response.data.msg);
+            setError(err.response?.data?.msg || 'Login Failed. Please try again.');
         }
     };
 
     return (
-        <div className="login-container">
-            {/* ...the rest of your form JSX is unchanged... */}
-            <h2>Login</h2>
-            <form onSubmit={onSubmit}>
-                <div>
-                    <label>Email</label>
-                    <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={onChange}
-                        required
-                    />
+        <div id="login-page-container">
+            {/* --- DELETED: The 3D Scene component --- */}
+            {/* <Scene3D /> */}
+
+            {/* This is the two-column box */}
+            <div className="login-layout-box">
+                
+                {/* --- 1. LEFT SIDE (FORM) --- */}
+                <div className="login-form-side">
+                    <div className="login-header">
+                        <h2>College Portal</h2>
+                         <p>Please sign in to continue</p>
+                    </div>
+                    
+                    <form onSubmit={onSubmit}>
+                        <div className="form-group">
+                            <label>Email</label>
+                            <input
+                                type="email"
+                                name="email"
+                                value={formData.email}
+                                onChange={onChange}
+                                placeholder="user@college.edu"
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label>Password</label>
+                            <input
+                                type="password"
+                                name="password"
+                                value={formData.password}
+                                onChange={onChange}
+                                placeholder="••••••••"
+                                required
+                            />
+                        </div>
+                        
+                        {error && <p className="login-error-message">{error}</p>}
+                        
+                        <button type="submit" className="login-button">Login</button>
+                    </form>
                 </div>
-                <div>
-                    <label>Password</label>
-                    <input
-                        type="password"
-                        name="password"
-                        value={formData.password}
-                        onChange={onChange}
-                        required
-                    />
+
+                {/* --- 2. RIGHT SIDE (INFO) --- */}
+                <div className="login-info-side">
+                    <img src="/amet_niat_logo.png" alt="AMET-NIAT Logo" className="login-info-logo" />
+                    <h3>AMET University</h3>
+                    <p className="login-info-text">
+                        In collaboration with NIAT, offering next-generation programs 
+                        in engineering, and technology.
+                    </p>
                 </div>
-                <button type="submit">Login</button>
-            </form>
+            </div>
         </div>
     );
 };
