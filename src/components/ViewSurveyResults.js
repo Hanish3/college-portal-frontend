@@ -1,0 +1,97 @@
+/* src/components/ViewSurveyResults.js (NEW FILE) */
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Link } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
+
+const ViewSurveyResults = () => {
+    const [results, setResults] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    const [dashboardPath, setDashboardPath] = useState('/faculty-dashboard');
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const config = { headers: { 'x-auth-token': token } };
+
+                // Set dashboard path based on role
+                const decoded = jwtDecode(token);
+                if (decoded.user.role === 'admin') {
+                    setDashboardPath('/admin-dashboard');
+                }
+
+                // Fetch survey results
+                const res = await axios.get('http://localhost:5000/api/survey/results', config);
+                setResults(res.data);
+                setLoading(false);
+            } catch (err) {
+                console.error('Error fetching results:', err);
+                setError('Failed to load survey results.');
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, []);
+
+    // Helper to format the date
+    const formatDate = (dateString) => {
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return new Date(dateString).toLocaleDateString(undefined, options);
+    };
+
+    // Helper to get CSS class for mood
+    const getMoodClass = (mood) => {
+        switch (mood) {
+            case 'Great': return 'mood-great';
+            case 'Good': return 'mood-good';
+            case 'Okay': return 'mood-okay';
+            case 'Stressed': return 'mood-stressed';
+            case 'Sad': return 'mood-sad';
+            default: return '';
+        }
+    };
+
+    if (loading) {
+        return <div className="dashboard-container"><p>Loading survey results...</p></div>;
+    }
+
+    return (
+        <div className="dashboard-container">
+            <Link to={dashboardPath} className="back-link">← Back to Dashboard</Link>
+            <h1>Student Mood Survey Results</h1>
+            <p>Recent submissions from students, newest first.</p>
+            {error && <p className="login-error-message">{error}</p>}
+            
+            <div className="item-list" style={{maxHeight: 'none'}}>
+                {results.length > 0 ? (
+                    results.map(res => (
+                        <div key={res._id} className="survey-result-card">
+                            <div className="survey-result-header">
+                                <span className="survey-student-name">
+                                    {res.student ? res.student.name : 'Unknown Student'}
+                                </span>
+                                <span className="item-date">{formatDate(res.date)}</span>
+                            </div>
+                            
+                            <div className={`survey-mood-badge ${getMoodClass(res.mood)}`}>
+                                {res.mood}
+                            </div>
+                            
+                            {res.comments && (
+                                <p className="survey-result-comment">
+                                    <strong>Comments:</strong> "{res.comments}"
+                                </p>
+                            )}
+                        </div>
+                    ))
+                ) : (
+                    <p>No survey responses have been submitted yet.</p>
+                )}
+            </div>
+        </div>
+    );
+};
+
+export default ViewSurveyResults;

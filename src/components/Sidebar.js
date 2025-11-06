@@ -34,7 +34,7 @@ const Sidebar = () => {
     };
 
     const isStudent = userRole === 'student';
-    const isFaculty = userRole === 'faculty';
+    const isFaculty = userRole ==='faculty';
     const isAdmin = userRole === 'admin';
 
     const getBrand = () => {
@@ -62,7 +62,7 @@ const Sidebar = () => {
                         <NavLink to="/curriculum" className="nav-link">Enroll in Courses</NavLink>
                         <NavLink to="/timetable" className="nav-link">Timetable</NavLink>
                         <NavLink to="/my-attendance" className="nav-link">My Attendance</NavLink>
-                        <NavLink to="/student/edit-profile" className="nav-link">Edit My Profile</NavLink>
+                        <NavLink to="/my-profile" className="nav-link">My Profile</NavLink>
                     </>
                 )}
 
@@ -70,16 +70,18 @@ const Sidebar = () => {
                 {isFaculty && (
                     <>
                         <NavLink to="/faculty-dashboard" className="nav-link">My Dashboard</NavLink>
-                        {/* --- ADDED THESE TWO LINKS --- */}
+                        <NavLink to="/admin-manage-users" className="nav-link">Manage Users</NavLink>
+                        {/* --- NEW LINK FOR FACULTY --- */}
+                        <NavLink to="/admin/survey-results" className="nav-link">Survey Results</NavLink>
+                        
                         <NavLink to="/admin-manage-events" className="nav-link">Manage Events</NavLink>
                         <NavLink to="/admin-manage-notifications" className="nav-link">Manage Notifications</NavLink>
-                        
                         <NavLink to="/curriculum" className="nav-link">View All Courses</NavLink>
                         <NavLink to="/timetable" className="nav-link">View Timetable</NavLink>
                     </>
                 )}
 
-                {/* --- ADMIN LINKS (Unchanged from before) --- */}
+                {/* --- ADMIN LINKS (UPDATED) --- */}
                 {isAdmin && (
                     <>
                         <NavLink to="/admin-dashboard" className="nav-link">Admin Dashboard</NavLink>
@@ -88,7 +90,9 @@ const Sidebar = () => {
                         {/* --- Admin Only Links --- */}
                         <NavLink to="/admin-manage-users" className="nav-link">Manage Users</NavLink>
                         <NavLink to="/curriculum" className="nav-link">Manage Courses</NavLink>
-                        
+                        {/* --- NEW LINK FOR ADMIN --- */}
+                        <NavLink to="/admin/survey-results" className="nav-link">Survey Results</NavLink>
+
                         {/* --- Shared Links --- */}
                         <NavLink to="/admin-manage-events" className="nav-link">Manage Events</NavLink>
                         <NavLink to="/admin-manage-notifications" className="nav-link">Manage Notifications</NavLink>

@@ -1,5 +1,7 @@
+/* src/components/MarkAttendance.js */
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 
 // --- (Alert component is unchanged) ---
 const Alert = ({ message, type }) => (
@@ -16,101 +18,71 @@ const Alert = ({ message, type }) => (
 );
 
 const MarkAttendance = () => {
+    const { userId } = useParams(); // Get student ID from the URL
+    const navigate = useNavigate();
+
     // --- State for the form data ---
-    const [selectedStudent, setSelectedStudent] = useState('');
     const [selectedCourse, setSelectedCourse] = useState('');
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
     const [status, setStatus] = useState('Present');
 
     // --- State for populating dropdowns ---
-    const [students, setStudents] = useState([]); // Students (filtered)
-    const [courses, setCourses] = useState([]); // All courses
-    const [loadingStudents, setLoadingStudents] = useState(false);
+    const [studentName, setStudentName] = useState('');
+    const [courses, setCourses] = useState([]); // Student's enrolled courses
+    const [loading, setLoading] = useState(true);
 
     // --- State for messages ---
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
-    // --- 1. This runs ONCE to fetch all courses ---
+    // --- This runs ONCE to fetch the student's data ---
     useEffect(() => {
-        const fetchCourses = async () => {
+        const fetchStudentData = async () => {
             try {
                 const token = localStorage.getItem('token'); 
                 const config = { headers: { 'x-auth-token': token } };
                 if (!token) {
                     setError('No auth token found. Please log in again.');
+                    setLoading(false);
                     return; 
                 }
-                const courseRes = await axios.get('http://localhost:5000/api/courses', config);
-                setCourses(courseRes.data);
+                
+                // Fetch the student profile, which now includes their courses
+                const res = await axios.get(`http://localhost:5000/api/students/${userId}`, config);
+                
+                const profile = res.data;
+                setStudentName(`${profile.firstName} ${profile.surname}`);
+                setCourses(profile.courses || []); // Set their enrolled courses
                 
                 // Set default course
-                if (courseRes.data.length > 0) {
-                    setSelectedCourse(courseRes.data[0]._id);
+                if (profile.courses && profile.courses.length > 0) {
+                    setSelectedCourse(profile.courses[0]._id);
                 }
-            } catch (err) {
-                 console.error("Error fetching courses:", err);
-                 setError('Failed to load courses.');
-            }
-        };
-        fetchCourses();
-    }, []); // Runs only on mount
-
-    // --- 2. This runs when `selectedCourse` changes ---
-    useEffect(() => {
-        const fetchStudentsForCourse = async () => {
-            if (!selectedCourse) {
-                setStudents([]); // Clear student list if no course is selected
-                return;
-            }
-            
-            setLoadingStudents(true);
-            setError(''); // Clear old errors
-            try {
-                const token = localStorage.getItem('token'); 
-                const config = { headers: { 'x-auth-token': token } };
-                
-                // Call our NEW API route to get students *for this course*
-                const studentRes = await axios.get(
-                    `http://localhost:5000/api/students/by-course/${selectedCourse}`, 
-                    config
-                );
-
-                setStudents(studentRes.data);
-                
-                // Set default student
-                if (studentRes.data.length > 0) {
-                    setSelectedStudent(studentRes.data[0].user);
-                } else {
-                    setSelectedStudent(''); // No students enrolled
-                }
-                setLoadingStudents(false);
+                setLoading(false);
 
             } catch (err) {
-                 console.error("Error fetching students:", err);
-                 setError('Failed to load students for this course.');
-                 setLoadingStudents(false);
-                 setStudents([]); // Clear list on error
+                 console.error("Error fetching student data:", err);
+                 setError('Failed to load student data.');
+                 setLoading(false);
             }
         };
+        fetchStudentData();
+    }, [userId]); // Runs only when the userId changes
 
-        fetchStudentsForCourse();
-    }, [selectedCourse]); // Re-runs every time selectedCourse changes
-
-    // --- 3. Form submission handler ---
+    // --- Form submission handler ---
     const onSubmit = async (e) => {
         e.preventDefault();
         setError('');
         setSuccess('');
 
         // Validation
-        if (!selectedStudent) {
-            setError('Please select a student. (Is anyone enrolled in this course?)');
+        if (!selectedCourse) {
+            setError('Please select a course. (Is this student enrolled in any?)');
             return;
         }
 
         const formData = {
-            studentId: selectedStudent,
+            studentId: userId, // We already have this from the URL
             courseId: selectedCourse,
             date,
             status
@@ -118,14 +90,15 @@ const MarkAttendance = () => {
 
         try {
             const token = localStorage.getItem('token');
-            const config = { headers: { 'x-auth-token': token } };
-            if (!token) {
-                setError('No auth token found. Please log in again.');
-                return;
-            }
+            const config = { headers: { 'Content-Type': 'application/json', 'x-auth-token': token } };
             
-            const res = await axios.post('http://localhost:5000/api/attendance', formData, config);
-            setSuccess(`Attendance marked for ${status} on ${date}!`);
+            // This still uses the single-student 'POST /api/attendance' route
+            await axios.post('http://localhost:5000/api/attendance', formData, config);
+            
+            setSuccess(`Attendance marked for ${studentName} as ${status} on ${date}!`);
+            
+            // Navigate back to the student's profile after 2 seconds
+            setTimeout(() => navigate(`/student/${userId}`), 2000);
         
         } catch (err) {
             if (err.response && err.response.data && err.response.data.msg) {
@@ -136,24 +109,41 @@ const MarkAttendance = () => {
             }
         }
     };
+    
+    if (loading) {
+        return <div className="dashboard-container"><p>Loading student's course list...</p></div>;
+    }
 
     // --- JSX (HTML) part ---
     return (
-        <div style={{ maxWidth: '600px', margin: 'auto', padding: '20px' }}>
-            <h2>Mark Attendance</h2>
+        <div className="dashboard-container">
+            <Link to={`/student/${userId}`} className="back-link">← Back to Profile</Link>
             
-            <form onSubmit={onSubmit}>
-                {/* --- 1. Course Dropdown (NOW CONTROLS STUDENTS) --- */}
-                <div style={{ marginBottom: '15px' }}>
+            <h2>Mark Attendance for {studentName}</h2>
+            
+            <form className="admin-form" onSubmit={onSubmit}>
+                {/* --- 1. Student (Read-only) --- */}
+                <div className="form-group">
+                    <label>Student</label>
+                    <input 
+                        type="text"
+                        value={studentName}
+                        disabled
+                        style={{ background: '#222', color: '#aaa' }}
+                    />
+                </div>
+
+                {/* --- 2. Course Dropdown (NOW FILTERED) --- */}
+                <div className="form-group">
                     <label>Course</label>
                     <select 
                         value={selectedCourse} 
                         onChange={(e) => setSelectedCourse(e.target.value)}
                         required
-                        style={{ width: '100%', padding: '8px' }}
+                        disabled={courses.length === 0}
                     >
                         {courses.length === 0 ? (
-                            <option value="">Loading courses...</option>
+                            <option value="">This student is not enrolled in any courses</option>
                         ) : (
                             courses.map(course => (
                                 <option key={course._id} value={course._id}>
@@ -164,64 +154,36 @@ const MarkAttendance = () => {
                     </select>
                 </div>
 
-                {/* --- 2. Student Dropdown (NOW FILTERED) --- */}
-                <div style={{ marginBottom: '15px' }}>
-                    <label>Student</label>
-                    <select 
-                        value={selectedStudent} 
-                        onChange={(e) => setSelectedStudent(e.target.value)}
-                        required
-                        disabled={loadingStudents || students.length === 0} // Disable if loading or empty
-                        style={{ width: '100%', padding: '8px' }}
-                    >
-                        {loadingStudents ? (
-                            <option value="">Loading students...</option>
-                        ) : students.length === 0 ? (
-                            <option value="">No students enrolled in this course</option>
-                        ) : (
-                            students.map(student => (
-                                <option key={student._id} value={student.user}>
-                                    {student.firstName} {student.surname}
-                                </option>
-                            ))
-                        )}
-                    </select>
-                </div>
-
-                {/* --- 3. Date Input --- */}
-                <div style={{ marginBottom: '15px' }}>
-                    {/* ... (date input is unchanged) ... */}
+                {/* --- 3. Date Input (Unchanged) --- */}
+                <div className="form-group">
                     <label>Date</label>
                     <input 
                         type="date"
                         value={date}
                         onChange={(e) => setDate(e.target.value)}
                         required
-                        style={{ width: '100%', padding: '8px' }}
                     />
                 </div>
 
-                {/* --- 4. Status Dropdown --- */}
-                <div style={{ marginBottom: '15px' }}>
-                    {/* ... (status input is unchanged) ... */}
+                {/* --- 4. Status Dropdown (Unchanged) --- */}
+                <div className="form-group">
                     <label>Status</label>
                     <select 
                         value={status} 
                         onChange={(e) => setStatus(e.target.value)}
                         required
-                        style={{ width: '100%', padding: '8px' }}
                     >
                         <option value="Present">Present</option>
                         <option value="Absent">Absent</option>
-                        <option value="Late">Late</option>
+                        <option value="Late">Late</option> {/* <-- THIS LINE IS FIXED */}
                     </select>
                 </div>
 
                 {/* --- Submit Button & Messages --- */}
                 <button 
                     type="submit" 
-                    style={{ width: '100%', padding: '12px', cursor: 'pointer' }}
-                    disabled={loadingStudents || students.length === 0}
+                    className="form-submit-button"
+                    disabled={courses.length === 0}
                 >
                     Submit Attendance
                 </button>

@@ -843,3 +843,328 @@ button:hover {
     width: 350px;
     margin: 0; /* Let the new container handle centering */
 }
+
+/* src/index.css */
+
+/* --- (All your existing CSS from the start...) --- */
+/* ... */
+/* ... (e.g., .login-error-message, etc.) ... */
+/* ... */
+/* --- (Ending with the .login-container rule) --- */
+.login-container {
+    width: 350px;
+    margin: 0; /* Let the new container handle centering */
+}
+
+
+/* --- NEW: Styles for TakeAttendance.js Radio Buttons --- */
+
+.status-radio {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.status-radio:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.status-radio input[type="radio"] {
+    /* Modern replacement for the default radio button */
+    appearance: none;
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #a0a0b0;
+    border-radius: 50%;
+    outline: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    margin: 0;
+}
+
+/* --- Style for the 'dot' inside --- */
+.status-radio input[type="radio"]:checked {
+    background-color: #6e8efb;
+    border-color: #6e8efb;
+    box-shadow: 0 0 0 2px #0D1117 inset, 0 0 5px #6e8efb;
+}
+
+/* --- Color coding the labels --- */
+.status-radio input[value="Present"]:checked + label {
+    color: #28a745;
+}
+.status-radio input[value="Absent"]:checked + label {
+    color: #d9534f;
+}
+.status-radio input[value="Late"]:checked + label {
+    color: #f0ad4e;
+}
+
+/* Re-labeling the radio text itself for clarity */
+.status-radio {
+    color: #c0c0c0;
+    font-weight: 500;
+}
+.status-radio input[type="radio"]:checked {
+    background-clip: content-box;
+    padding: 3px;
+}
+
+/* src/index.css */
+
+/* --- (All your existing CSS from the start...) --- */
+/* ... */
+/* ... */
+/* --- (Ending with the .status-radio:checked styles) --- */
+.status-radio input[type="radio"]:checked {
+    background-clip: content-box;
+    padding: 3px;
+}
+
+
+/* --- NEW: Styles for Student Mood Survey --- */
+
+.survey-container {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 2rem;
+    box-sizing: border-box;
+}
+
+.survey-container h3 {
+    margin: 0 0 1rem 0;
+    text-align: center;
+    color: #ffffff;
+}
+
+.mood-selector {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.mood-button {
+    width: auto;
+    flex-grow: 1; /* Allows buttons to share space */
+    min-width: 100px;
+    
+    /* Default, unselected style */
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #a0a0b0;
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+    transition: all 0.2s ease;
+}
+
+.mood-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #6e8efb;
+    color: #fff;
+}
+
+/* Selected "active" style */
+.mood-button.active {
+    background: #6e8efb;
+    border-color: #6e8efb;
+    color: #ffffff;
+    box-shadow: 0 0 15px rgba(110, 142, 251, 0.3);
+}
+
+.survey-comments {
+    width: 100%;
+    min-height: 80px;
+    padding: 0.75rem 1rem;
+    box-sizing: border-box; 
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.2);
+    color: #e0e0e0;
+    font-size: 1rem;
+    margin-top: 1rem;
+    resize: vertical;
+}
+
+/* src/index.css */
+
+/* --- (All your existing CSS from the start...) --- */
+/* ... */
+/* ... */
+/* --- (Ending with the .survey-comments styles) --- */
+.survey-comments {
+    width: 100%;
+    min-height: 80px;
+    padding: 0.75rem 1rem;
+    box-sizing: border-box; 
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.2);
+    color: #e0e0e0;
+    font-size: 1rem;
+    margin-top: 1rem;
+    resize: vertical;
+}
+
+/* --- NEW: Styles for Survey Results Page --- */
+
+.survey-result-card {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1rem; /* Use margin-bottom, not gap, for item-list */
+}
+
+.survey-result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.survey-student-name {
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #ffffff;
+}
+
+.survey-result-comment {
+    font-style: italic;
+    color: #e0e0e0;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 0.75rem;
+    border-radius: 4px;
+    margin: 1rem 0 0 0;
+    border-left: 3px solid #6e8efb;
+}
+
+.survey-mood-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 1rem;
+    color: #fff;
+    text-align: center;
+}
+
+/* Mood color classes */
+.mood-great { background-color: #28a745; }
+.mood-good { background-color: #5bc0de; }
+.mood-okay { background-color: #f0ad4e; color: #333; }
+.mood-stressed { background-color: #d9534f; }
+.mood-sad { background-color: #6e8efb; }
+
+/* src/index.css */
+
+/* --- (All your existing CSS...) --- */
+/* ... */
+/* --- (Ending with the .survey-mood-badge styles) --- */
+.mood-stressed { background-color: #d9534f; }
+.mood-sad { background-color: #6e8efb; }
+
+
+/* --- NEW: Admin Dashboard Stats Grid --- */
+
+.section-title {
+    text-align: left;
+    border: none;
+    margin: 1rem 0;
+    color: #e0e0e0;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.stat-card {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.stat-card-link:hover .stat-card {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+.stat-card h2 {
+    font-size: 3rem;
+    font-weight: bold;
+    margin: 0 0 0.5rem 0;
+    text-align: left;
+    padding: 0;
+    border: none;
+}
+
+.stat-card p {
+    font-size: 1rem;
+    font-weight: 500;
+    margin: 0;
+    color: #a0a0b0;
+}
+
+/* Stat card colors */
+.stat-card.yellow h2 { color: #f0ad4e; }
+.stat-card.yellow:hover { border-color: #f0ad4e; }
+
+.stat-card.green h2 { color: #28a745; }
+.stat-card.green:hover { border-color: #28a745; }
+
+.stat-card.blue h2 { color: #5bc0de; }
+.stat-card.blue:hover { border-color: #5bc0de; }
+
+
+/* --- NEW: Admin Dashboard Survey Widget --- */
+
+.survey-results-widget {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 1.5rem;
+}
+
+.survey-result-card-widget {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+}
+
+.survey-result-card-widget .survey-mood-badge {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.9rem;
+}
+
+.survey-result-card-widget strong {
+    color: #fff;
+    flex-grow: 1;
+}
+
+.survey-result-card-widget .item-date {
+    color: #a0a0b0;
+    font-size: 0.9rem;
+}

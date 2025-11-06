@@ -26,36 +26,31 @@ const Register = () => {
         setError('');
         setStatusMessage('');
 
-        // 1. Check if passwords match
         if (password !== confirmPassword) {
             setError('Passwords do not match');
             return;
         }
 
         try {
+            // 'role' is now sent in the request again
             const newUser = { name, email, password, role };
             const body = JSON.stringify(newUser);
             const config = {
                 headers: { 'Content-Type': 'application/json' }
             };
 
-            // 2. Call the register API
             const res = await axios.post(
                 'http://localhost:5000/api/auth/register',
                 body,
                 config
             );
 
-            // 3. Show success message from the server
             setStatusMessage(res.data.msg || 'Registration successful!');
-            
-            // Clear form
             setFormData({
                 name: '', email: '', password: '', 
                 confirmPassword: '', role: 'student'
             });
 
-            // 4. Redirect to login after 3 seconds
             setTimeout(() => {
                 navigate('/login');
             }, 3000);
@@ -123,13 +118,17 @@ const Register = () => {
                                 required
                             />
                         </div>
+
+                        {/* --- THIS DROPDOWN IS NOW UPDATED --- */}
                         <div className="form-group">
                             <label>I am a...</label>
                             <select name="role" value={role} onChange={onChange} style={{ width: '100%', padding: '0.75rem 1rem' }}>
                                 <option value="student">Student</option>
-                                <option value="faculty">Faculty / Teacher</option>
+                                <option value="faculty">Faculty / HOD</option>
+                                <option value="admin">Admin</option>
                             </select>
                         </div>
+                        {/* --- END OF UPDATE --- */}
                         
                         {error && <p className="login-error-message">{error}</p>}
                         {statusMessage && <p className="form-message">{statusMessage}</p>}

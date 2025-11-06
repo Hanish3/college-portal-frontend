@@ -8,8 +8,9 @@ import Login from './components/Login.js';
 import Register from './components/Register.js';
 import StudentDashboard from './components/StudentDashboard.js'; 
 import AdminDashboard from './components/AdminDashboard.js'; 
-import FacultyDashboard from './components/FacultyDashboard.js'; // <-- 1. IMPORT THE NEW DASHBOARD
+import FacultyDashboard from './components/FacultyDashboard.js';
 import StudentProfile from './components/StudentProfile.js'; 
+import MyProfile from './components/MyProfile.js';
 import Curriculum from './components/Curriculum.js'; 
 import CreateEvent from './components/CreateEvent.js'; 
 import CreateNotification from './components/CreateNotification.js'; 
@@ -20,15 +21,17 @@ import ManageUsers from './components/ManageUsers.js';
 import EditStudentProfile from './components/EditStudentProfile.js'; 
 import EditMyProfile from './components/EditMyProfile.js'; 
 import MarkAttendance from './components/MarkAttendance.js'; 
+import TakeAttendance from './components/TakeAttendance.js';
 import MyAttendance from './components/MyAttendance.js'; 
 import CourseAttendance from './components/CourseAttendance.js';
 import Timetable from './components/Timetable.js';
 import EditCourse from './components/EditCourse.js';
+// --- 1. IMPORT THE NEW COMPONENT ---
+import ViewSurveyResults from './components/ViewSurveyResults.js';
+
 
 /**
  * This is our new "private" layout.
- * It shows the Sidebar + Page content for all logged-in pages.
- * The <Outlet /> renders the specific page (e.g., Dashboard).
  */
 const PrivateLayout = () => {
     return (
@@ -53,12 +56,15 @@ function App() {
 
                 {/* --- Private Routes --- */}
                 <Route element={<PrivateLayout />}>
+                    {/* (Dashboards) */}
                     <Route path="/student-dashboard" element={<StudentDashboard />} />
-                    
-                    {/* --- UPDATED: Split Admin & Faculty Dashboards --- */}
                     <Route path="/admin-dashboard" element={<AdminDashboard />} />
-                    <Route path="/faculty-dashboard" element={<FacultyDashboard />} /> {/* <-- 2. ADD THE NEW ROUTE */}
+                    <Route path="/faculty-dashboard" element={<FacultyDashboard />} />
 
+                    {/* (Faculty Routes) */}
+                    <Route path="/faculty/take-attendance/:courseId" element={<TakeAttendance />} />
+
+                    {/* (Admin Routes) */}
                     <Route path="/student/:userId" element={<StudentProfile />} />
                     <Route path="/admin-create-event" element={<CreateEvent />} /> 
                     <Route path="/admin-create-notification" element={<CreateNotification />} />
@@ -70,9 +76,16 @@ function App() {
                     <Route path="/admin/mark-attendance/:userId" element={<MarkAttendance />} />
                     <Route path="/admin/edit-course/:courseId" element={<EditCourse />} />
                     
+                    {/* --- 2. ADD THE NEW SURVEY ROUTE --- */}
+                    <Route path="/admin/survey-results" element={<ViewSurveyResults />} />
+
+                    {/* (Student Routes) */}
+                    <Route path="/my-profile" element={<MyProfile />} />
                     <Route path="/student/edit-profile" element={<EditMyProfile />} />
                     <Route path="/my-attendance" element={<MyAttendance />} />
                     <Route path="/my-attendance/:courseId" element={<CourseAttendance />} />
+
+                    {/* (Shared Routes) */}
                     <Route path="/curriculum" element={<Curriculum />} /> 
                     <Route path="/timetable" element={<Timetable />} /> 
                 </Route>

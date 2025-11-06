@@ -1,17 +1,31 @@
+/* src/components/ManageEvents.js */
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-// import Navbar from './Navbar'; // <-- DELETED
+import { jwtDecode } from 'jwt-decode'; // <-- 1. IMPORT jwtDecode
 
 const ManageEvents = () => {
-    // ... (your existing useState/useEffect code is perfect) ...
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
+    
+    // --- 2. ADD STATE FOR DASHBOARD PATH ---
+    const [dashboardPath, setDashboardPath] = useState('/student-dashboard');
 
     useEffect(() => {
-        const fetchAllEvents = async () => {
+        const fetchData = async () => {
             try {
                 const token = localStorage.getItem('token');
+                
+                // --- 3. SET THE CORRECT DASHBOARD PATH ---
+                if (token) {
+                    const decoded = jwtDecode(token);
+                    if (decoded.user.role === 'admin') {
+                        setDashboardPath('/admin-dashboard');
+                    } else if (decoded.user.role === 'faculty') {
+                        setDashboardPath('/faculty-dashboard');
+                    }
+                }
+                
                 const config = {
                     headers: { 'x-auth-token': token },
                 };
@@ -24,17 +38,17 @@ const ManageEvents = () => {
                 setLoading(false);
             }
         };
-        fetchAllEvents();
+        fetchData();
     }, []);
 
     const formatDate = (dateString) => {
-        // ... (your existing formatDate code is perfect) ...
+        // ... (this function is unchanged) ...
         const options = { year: 'numeric', month: 'long', day: 'numeric' };
         return new Date(dateString).toLocaleDateString(undefined, options);
     };
 
     const handleDelete = async (eventId) => {
-        // ... (your existing handleDelete code is perfect) ...
+        // ... (this function is unchanged) ...
          if (!window.confirm('Are you sure you want to permanently delete this event?')) {
             return;
         }
@@ -53,19 +67,19 @@ const ManageEvents = () => {
     };
 
     if (loading) {
-        // REMOVED NAVBAR AND PARENT DIV
         return <div className="dashboard-container"><p>Loading events...</p></div>;
     }
 
     return (
-        // REMOVED NAVBAR AND PARENT DIV
         <div className="dashboard-container">
-            <Link to="/admin-dashboard" className="back-link">← Back to Dashboard</Link>
+            {/* --- 4. USE THE DYNAMIC DASHBOARD PATH --- */}
+            <Link to={dashboardPath} className="back-link">← Back to Dashboard</Link>
+            
             <h1>Manage Events</h1>
             <p>Here you can view, edit, and delete all past and upcoming events.</p>
 
             <div className="admin-actions" style={{ marginBottom: '2rem' }}>
-                <Link to="/admin-create-event" className="action-button">
+                <Link to="/admin-create-event" className="action-button" style={{backgroundColor: '#28a745'}}>
                     + Create New Event
                 </Link>
             </div>

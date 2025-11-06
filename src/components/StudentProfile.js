@@ -1,12 +1,20 @@
+/* src/components/StudentProfile.js */
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode'; // <-- 1. IMPORT jwtDecode
 
 const StudentProfile = () => {
     const { userId } = useParams();
+    const navigate = useNavigate(); // <-- 2. ADD useNavigate
+    
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [message, setMessage] = useState('');
+
+    // --- 3. ADD STATE FOR ADMIN ---
+    const [isAdmin, setIsAdmin] = useState(false);
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -17,9 +25,18 @@ const StudentProfile = () => {
                     setLoading(false);
                     return;
                 }
+                
+                // Check if user is an admin
+                const decoded = jwtDecode(token);
+                if (decoded.user.role === 'admin') {
+                    setIsAdmin(true);
+                }
+
                 const config = {
                     headers: { 'x-auth-token': token },
                 };
+                
+                // This route now correctly populates 'courses'
                 const res = await axios.get(`http://localhost:5000/api/students/${userId}`, config);
                 setProfile(res.data);
                 setLoading(false);
@@ -33,6 +50,35 @@ const StudentProfile = () => {
         fetchProfile();
     }, [userId]);
 
+    // --- 4. ADD HANDLERS FOR ADMIN ACTIONS ---
+    const handleSuspend = async () => {
+        if (!window.confirm(`Are you sure you want to SUSPEND ${profile.firstName}? They will be unable to log in.`)) return;
+        try {
+            const token = localStorage.getItem('token');
+            const config = { headers: { 'x-auth-token': token } };
+            await axios.put(`http://localhost:5000/api/users/suspend/${userId}`, null, config);
+            setMessage('User has been suspended. They must be reactivated from the "Manage Users" page.');
+            setError('');
+        } catch (err) {
+            setError(err.response?.data?.msg || 'Failed to suspend user.');
+            setMessage('');
+        }
+    };
+
+    const handleDelete = async () => {
+        if (!window.confirm(`Are you sure you want to PERMANENTLY DELETE ${profile.firstName}? This cannot be undone.`)) return;
+        try {
+            const token = localStorage.getItem('token');
+            const config = { headers: { 'x-auth-token': token } };
+            await axios.delete(`http://localhost:5000/api/users/${userId}`, config);
+            alert('User has been permanently deleted.');
+            navigate('/admin-dashboard'); // Go back to dashboard after deletion
+        } catch (err) {
+            setError(err.response?.data?.msg || 'Failed to delete user.');
+        }
+    };
+    // --- END OF NEW HANDLERS ---
+
 
     if (loading) {
         return (
@@ -45,17 +91,27 @@ const StudentProfile = () => {
     if (error) {
         return (
             <div className="profile-container">
-                <p>{error}</p>
+                <p className="login-error-message">{error}</p>
+            </div>
+        );
+    }
+    
+    if (!profile) {
+         return (
+            <div className="profile-container">
+                <p>No profile data found for this user.</p>
             </div>
         );
     }
 
     return (
         <div className="profile-container">
-            {/* --- THIS BLOCK IS NOW UPDATED --- */}
             <div className="profile-actions">
-                <Link to="/admin-dashboard" className="back-link">← Back to Search</Link>
+                <Link to={isAdmin ? "/admin-dashboard" : "/faculty-dashboard"} className="back-link">
+                    ← Back to Dashboard
+                </Link>
                 
+                {/* --- Admin & Faculty Buttons --- */}
                 <Link 
                     to={`/admin/mark-attendance/${userId}`} 
                     className="action-button" 
@@ -63,15 +119,35 @@ const StudentProfile = () => {
                 >
                     Mark Attendance
                 </Link>
-
                 <Link 
                     to={`/admin/edit-student/${userId}`} 
                     className="action-button"
                 >
                     Edit Profile
                 </Link>
+
+                {/* --- 5. ADMIN-ONLY BUTTONS --- */}
+                {isAdmin && (
+                    <>
+                        <button 
+                            onClick={handleSuspend}
+                            className="action-button" 
+                            style={{ backgroundColor: '#f0ad4e', color: '#333' }}
+                        >
+                            Suspend User
+                        </button>
+                        <button 
+                            onClick={handleDelete}
+                            className="action-button" 
+                            style={{ backgroundColor: '#d9534f' }}
+                        >
+                            Remove User
+                        </button>
+                    </>
+                )}
             </div>
-            {/* --- END OF UPDATE --- */}
+            
+            {message && <p className="form-message" style={{color: '#28a745'}}>{message}</p>}
             
             <div className="text-center mb-8">
                 <h1>{profile.firstName} {profile.surname}</h1>
@@ -94,6 +170,25 @@ const StudentProfile = () => {
                     <p><strong>WhatsApp Number:</strong> {profile.isWhatsappSame ? profile.mobileNumber : (profile.whatsappNumber || 'Not set')}</p>
                 </div>
                 
+                {/* --- 6. NEW ENROLLED COURSES SECTION --- */}
+                <div>
+                    <h2>Enrolled Courses</h2>
+                    <div className="item-list" style={{maxHeight: '200px'}}>
+                        {profile.courses && profile.courses.length > 0 ? (
+                            profile.courses.map(course => (
+                                <div key={course._id} className="course-card">
+                                    <div className="course-card-info">
+                                        <h3>{course.code} - {course.title}</h3>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <p>This student is not enrolled in any courses.</p>
+                        )}
+                    </div>
+                </div>
+                {/* --- END OF NEW SECTION --- */}
+
                 <div>
                     <h2>Confidential Information</h2>
                     <p><strong>Family Income:</strong> ${profile.familyIncome || 'Not set'}</p>
