@@ -1,4 +1,4 @@
-/* src/components/FacultyDashboard.js */
+/* src/components/FacultyDashboard.js (Fix Search Error Handling) */
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
@@ -9,7 +9,7 @@ const FacultyDashboard = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
-    // --- NEW: State for the search bar ---
+    // --- State for the search bar ---
     const [searchTerm, setSearchTerm] = useState('');
     const [students, setStudents] = useState([]);
     const [message, setMessage] = useState('Search for students by name.');
@@ -21,6 +21,7 @@ const FacultyDashboard = () => {
                 const token = localStorage.getItem('token');
                 const config = { headers: { 'x-auth-token': token } };
                 
+                // NOTE: This will be empty if no courses are assigned (as seen in your screenshot)
                 const res = await axios.get('http://localhost:5000/api/courses/my-courses', config);
                 
                 setMyCourses(res.data);
@@ -34,36 +35,52 @@ const FacultyDashboard = () => {
         fetchMyCourses();
     }, []); 
 
-    // --- NEW: Search function (copied from AdminDashboard) ---
+    // --- FIX: Robust Search function ---
     const onSearch = async (e) => {
         e.preventDefault();
         setMessage('Searching...');
+        setError(''); // Clear previous error
+        setStudents([]); // Clear previous results
+        
+        if (!searchTerm.trim()) {
+            setMessage('Please enter a name to search.');
+            return;
+        }
+
         try {
             const token = localStorage.getItem('token');
             if (!token) {
-                setMessage('You are not logged in.');
+                setError('You are not logged in.');
                 return;
             }
+            
             const config = {
                 headers: { 'x-auth-token': token },
             };
+            
+            // This route should only return basic student profiles
             const res = await axios.get(
                 `http://localhost:5000/api/students/search?name=${searchTerm}`,
                 config
             );
+            
             if (res.data.length === 0) {
-                setMessage('No students found.');
+                setMessage(`No students found matching "${searchTerm}".`);
             } else {
                 setStudents(res.data);
-                setMessage('');
+                setMessage(`Found ${res.data.length} student(s).`);
             }
+            
         } catch (err) {
-            console.error(err.response.data);
-            setMessage(`Error: ${err.response.data.msg}`);
+            console.error(err.response?.data);
+            // FIX: Check for the most likely error message property first
+            const errMsg = err.response?.data?.msg || err.message || 'A network error occurred. Check server logs.';
+            setError(`Error: ${errMsg}`);
+            setMessage('');
             setStudents([]);
         }
     };
-    // --- END NEW ---
+    // --- END FIX ---
 
     if (loading) {
         return <div className="dashboard-container"><p>Loading your courses...</p></div>;
@@ -88,12 +105,19 @@ const FacultyDashboard = () => {
                 </form>
             </div>
             <div className="results-container">
+                
+                {/* FIX: Display error separately from the status/message */}
+                {error && <p className="login-error-message">{error}</p>}
+                
                 {message && <p>{message}</p>}
+                
                 {students.length > 0 && (
                     <ul>
                         {students.map((student) => (
+                            // NOTE: student.user is the User ID used for linking to the profile
                             <Link to={`/student/${student.user}`} key={student._id} className="student-link">
                                 <li className="student-item">
+                                    {/* Placeholder for avatar */}
                                     <img 
                                         src="default-avatar.png"
                                         alt="avatar" 
@@ -101,7 +125,7 @@ const FacultyDashboard = () => {
                                     />
                                     <div className="student-info">
                                         <strong>{student.firstName} {student.surname}</strong>
-                                        <span>{student.email}</span>
+                                        <span>Email: {student.email}</span>
                                     </div>
                                 </li>
                             </Link>
@@ -113,6 +137,7 @@ const FacultyDashboard = () => {
 
 
             {/* --- SECTION 2: MY COURSES (Original) --- */}
+            <a id="attendance"></a> {/* Anchor for sidebar link */}
             <h2 style={{marginTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '2rem'}}>
                 My Assigned Courses
             </h2>
@@ -136,11 +161,12 @@ const FacultyDashboard = () => {
                                 >
                                     Take Attendance
                                 </Link>
+                                {/* We would add the "View Report" link here later */}
                             </div>
                         </div>
                     ))
                 ) : (
-                    <p>You have not been assigned to any courses yet.</p>
+                    <p>You have not been assigned to any courses yet. An Admin must assign courses to you first.</p>
                 )}
             </div>
             {/* --- END ORIGINAL SECTION --- */}

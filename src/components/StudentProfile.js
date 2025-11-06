@@ -1,4 +1,4 @@
-/* src/components/StudentProfile.js (Final Code with Enrollment Management) */
+/* src/components/StudentProfile.js (FINAL FIX: Display Attendance %) */
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, Link, useNavigate } from 'react-router-dom';
@@ -9,11 +9,19 @@ const StudentProfile = () => {
     const navigate = useNavigate();
     
     const [profile, setProfile] = useState(null);
-    const [allCourses, setAllCourses] = useState([]); // NEW state for all courses
+    const [allCourses, setAllCourses] = useState([]); 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [message, setMessage] = useState('');
     const [isAdmin, setIsAdmin] = useState(false);
+    
+    // Helper to determine the color of the percentage box
+    const getPercentageColor = (percentage) => {
+        if (percentage >= 75) return '#28a745';
+        if (percentage >= 50) return '#f0ad4e';
+        return '#d9534f';
+    };
+
 
     // --- Function to fetch all data ---
     const fetchProfileAndCourses = async () => {
@@ -26,14 +34,13 @@ const StudentProfile = () => {
             }
             
             const decoded = jwtDecode(token);
-            // Check if the current user is an Admin
             if (decoded.user.role === 'admin') {
                 setIsAdmin(true);
             }
 
             const config = { headers: { 'x-auth-token': token } };
             
-            // Fetch student profile AND all courses in parallel
+            // Fetch student profile (now includes overallAttendancePercentage) AND all courses
             const [profileRes, allCoursesRes] = await Promise.all([
                 axios.get(`http://localhost:5000/api/students/${userId}`, config),
                 axios.get('http://localhost:5000/api/courses', config) // Get all courses
@@ -54,7 +61,7 @@ const StudentProfile = () => {
         fetchProfileAndCourses();
     }, [userId]);
     
-    // --- NEW: Enrollment Handlers ---
+    // --- Enrollment Handlers (omitted for brevity) ---
     const handleEnrollmentChange = async (courseId, action) => {
         const actionText = action === 'enroll' ? 'enrolling' : 'unenrolling';
         setMessage(`Processing ${actionText}...`);
@@ -66,14 +73,11 @@ const StudentProfile = () => {
             
             let res;
             if (action === 'enroll') {
-                // Calls the new 'manage-enroll' route on the backend
                 res = await axios.put(`http://localhost:5000/api/students/manage-enroll/${userId}/${courseId}`, {}, config);
             } else {
-                // Calls the new 'manage-unenroll' route on the backend
                 res = await axios.put(`http://localhost:5000/api/students/manage-unenroll/${userId}/${courseId}`, {}, config);
             }
             
-            // The response contains the updated list of enrolled courses
             setProfile(prevProfile => ({
                 ...prevProfile,
                 courses: res.data // Replace the old courses list with the new one
@@ -87,7 +91,7 @@ const StudentProfile = () => {
         }
     };
     
-    // --- Existing Admin Handlers ---
+    // --- Existing Admin Handlers (Suspend, Delete) ---
     const handleSuspend = async () => {
         if (!window.confirm(`Are you sure you want to SUSPEND ${profile.firstName}? They will be unable to log in.`)) return;
         try {
@@ -127,11 +131,14 @@ const StudentProfile = () => {
          return ( <div className="profile-container"> <p>No profile data found for this user.</p> </div> );
     }
 
-    // Convert the enrolled course array to a Set for quick lookups
     const enrolledCourseIds = new Set(profile.courses.map(c => c._id));
-    
-    // Determine back path based on who's viewing (Admin or Faculty)
     const backPath = isAdmin ? "/admin-dashboard" : "/faculty-dashboard";
+    
+    // --- NEW: Extract and format percentage ---
+    const percentage = profile.overallAttendancePercentage !== undefined 
+                       ? profile.overallAttendancePercentage.toFixed(1)
+                       : 'N/A';
+
 
     return (
         <div className="dashboard-container">
@@ -178,19 +185,32 @@ const StudentProfile = () => {
             
             {message && <p className="form-message" style={{color: '#28a745'}}>{message}</p>}
             
-            <div className="text-center mb-8">
-                <h1>{profile.firstName} {profile.surname}</h1>
+            <div className="text-center mb-8" style={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '3rem'}}>
                 <img 
                     src={profile.photo || "/default-avatar.png"} 
                     alt="avatar" 
                     className="profile-avatar" 
                     onError={(e) => { e.target.onerror = null; e.target.src="/default-avatar.png" }}
                 />
+                <div style={{textAlign: 'left'}}>
+                    <h1>{profile.firstName} {profile.surname}</h1>
+                    {/* --- NEW: ATTENDANCE PERCENTAGE BOX --- */}
+                    <div className="attendance-percentage-box" style={{borderLeft: 'none', paddingLeft: 0, marginTop: '1rem', textAlign: 'left'}}>
+                        <h2 style={{ 
+                            color: getPercentageColor(profile.overallAttendancePercentage),
+                            fontSize: '3rem',
+                            borderBottom: 'none'
+                        }}>
+                            {percentage}%
+                        </h2>
+                        <p style={{marginTop: '-10px', color: '#ccc', fontWeight: 'bold'}}>Overall Attendance</p>
+                    </div>
+                    {/* --- END NEW --- */}
+                </div>
             </div>
             
             <section className="space-y-6">
                 
-                {/* --- NEW: COURSE ENROLLMENT MANAGEMENT SECTION --- */}
                 <div>
                     <h2>Course Enrollment Management</h2>
                     <p>Modify the courses this student is currently enrolled in.</p>

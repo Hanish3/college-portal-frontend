@@ -1,8 +1,7 @@
-/* src/components/Sidebar.js */
+/* src/components/Sidebar.js (UPDATED with Attendance Link) */
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, NavLink } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
-// --- 1. REMOVED THE StudentSurvey IMPORT ---
 
 const Sidebar = () => {
     const navigate = useNavigate();
@@ -56,11 +55,10 @@ const Sidebar = () => {
 
             <nav className="sidebar-nav">
                 
-                {/* --- STUDENT LINKS (UPDATED) --- */}
+                {/* --- STUDENT LINKS --- */}
                 {isStudent && (
                     <>
                         <NavLink to="/student-dashboard" className="nav-link">Dashboard</NavLink>
-                        {/* --- 2. ADDED THIS NEW LINK --- */}
                         <NavLink to="/my-survey" className="nav-link">My Survey</NavLink>
                         <NavLink to="/curriculum" className="nav-link">Enroll in Courses</NavLink>
                         <NavLink to="/timetable" className="nav-link">Timetable</NavLink>
@@ -69,11 +67,13 @@ const Sidebar = () => {
                     </>
                 )}
 
-                {/* --- FACULTY LINKS --- */}
+                {/* --- FACULTY LINKS (UPDATED) --- */}
                 {isFaculty && (
                     <>
                         <NavLink to="/faculty-dashboard" className="nav-link">My Dashboard</NavLink>
                         <NavLink to="/admin-manage-users" className="nav-link">Manage Users</NavLink>
+                        {/* --- NEW ATTENDANCE LINK --- */}
+                        <NavLink to="/faculty-dashboard#attendance" className="nav-link">Take Attendance</NavLink>
                         <NavLink to="/admin/survey-results" className="nav-link">Survey Results</NavLink>
                         <NavLink to="/admin-manage-events" className="nav-link">Manage Events</NavLink>
                         <NavLink to="/admin-manage-notifications" className="nav-link">Manage Notifications</NavLink>
@@ -95,8 +95,6 @@ const Sidebar = () => {
                     </>
                 )}
             </nav>
-
-            {/* --- 3. REMOVED THE SURVEY WIDGET FROM HERE --- */}
 
             <div className="sidebar-footer">
                 <button onClick={handleLogout} className="logout-button">
