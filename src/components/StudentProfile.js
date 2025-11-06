@@ -1,56 +1,93 @@
-/* src/components/StudentProfile.js */
+/* src/components/StudentProfile.js (Final Code with Enrollment Management) */
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode'; // <-- 1. IMPORT jwtDecode
+import { jwtDecode } from 'jwt-decode';
 
 const StudentProfile = () => {
     const { userId } = useParams();
-    const navigate = useNavigate(); // <-- 2. ADD useNavigate
+    const navigate = useNavigate();
     
     const [profile, setProfile] = useState(null);
+    const [allCourses, setAllCourses] = useState([]); // NEW state for all courses
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [message, setMessage] = useState('');
-
-    // --- 3. ADD STATE FOR ADMIN ---
     const [isAdmin, setIsAdmin] = useState(false);
 
-    useEffect(() => {
-        const fetchProfile = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    setError('No token, authorization denied.');
-                    setLoading(false);
-                    return;
-                }
-                
-                // Check if user is an admin
-                const decoded = jwtDecode(token);
-                if (decoded.user.role === 'admin') {
-                    setIsAdmin(true);
-                }
-
-                const config = {
-                    headers: { 'x-auth-token': token },
-                };
-                
-                // This route now correctly populates 'courses'
-                const res = await axios.get(`http://localhost:5000/api/students/${userId}`, config);
-                setProfile(res.data);
+    // --- Function to fetch all data ---
+    const fetchProfileAndCourses = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                setError('No token, authorization denied.');
                 setLoading(false);
-            } catch (err) {
-                const errMsg = err.response?.data?.msg || 'Failed to fetch profile data.';
-                console.error(errMsg);
-                setError(`Error: ${errMsg}`);
-                setLoading(false);
+                return;
             }
-        };
-        fetchProfile();
-    }, [userId]);
+            
+            const decoded = jwtDecode(token);
+            // Check if the current user is an Admin
+            if (decoded.user.role === 'admin') {
+                setIsAdmin(true);
+            }
 
-    // --- 4. ADD HANDLERS FOR ADMIN ACTIONS ---
+            const config = { headers: { 'x-auth-token': token } };
+            
+            // Fetch student profile AND all courses in parallel
+            const [profileRes, allCoursesRes] = await Promise.all([
+                axios.get(`http://localhost:5000/api/students/${userId}`, config),
+                axios.get('http://localhost:5000/api/courses', config) // Get all courses
+            ]);
+            
+            setProfile(profileRes.data);
+            setAllCourses(allCoursesRes.data);
+            setLoading(false);
+        } catch (err) {
+            const errMsg = err.response?.data?.msg || 'Failed to fetch profile data.';
+            console.error(errMsg);
+            setError(`Error: ${errMsg}`);
+            setLoading(false);
+        }
+    };
+    
+    useEffect(() => {
+        fetchProfileAndCourses();
+    }, [userId]);
+    
+    // --- NEW: Enrollment Handlers ---
+    const handleEnrollmentChange = async (courseId, action) => {
+        const actionText = action === 'enroll' ? 'enrolling' : 'unenrolling';
+        setMessage(`Processing ${actionText}...`);
+        setError('');
+
+        try {
+            const token = localStorage.getItem('token');
+            const config = { headers: { 'x-auth-token': token } };
+            
+            let res;
+            if (action === 'enroll') {
+                // Calls the new 'manage-enroll' route on the backend
+                res = await axios.put(`http://localhost:5000/api/students/manage-enroll/${userId}/${courseId}`, {}, config);
+            } else {
+                // Calls the new 'manage-unenroll' route on the backend
+                res = await axios.put(`http://localhost:5000/api/students/manage-unenroll/${userId}/${courseId}`, {}, config);
+            }
+            
+            // The response contains the updated list of enrolled courses
+            setProfile(prevProfile => ({
+                ...prevProfile,
+                courses: res.data // Replace the old courses list with the new one
+            }));
+            
+            setMessage(`Student successfully ${action === 'enroll' ? 'enrolled in' : 'unenrolled from'} the course.`);
+
+        } catch (err) {
+            setError(err.response?.data?.msg || `Failed to ${actionText} student.`);
+            setMessage('');
+        }
+    };
+    
+    // --- Existing Admin Handlers ---
     const handleSuspend = async () => {
         if (!window.confirm(`Are you sure you want to SUSPEND ${profile.firstName}? They will be unable to log in.`)) return;
         try {
@@ -77,37 +114,29 @@ const StudentProfile = () => {
             setError(err.response?.data?.msg || 'Failed to delete user.');
         }
     };
-    // --- END OF NEW HANDLERS ---
-
 
     if (loading) {
-        return (
-            <div className="profile-container">
-                <p>Loading profile...</p>
-            </div>
-        );
+        return ( <div className="profile-container"> <p>Loading profile...</p> </div> );
     }
 
     if (error) {
-        return (
-            <div className="profile-container">
-                <p className="login-error-message">{error}</p>
-            </div>
-        );
+        return ( <div className="profile-container"> <p className="login-error-message">{error}</p> </div> );
     }
     
     if (!profile) {
-         return (
-            <div className="profile-container">
-                <p>No profile data found for this user.</p>
-            </div>
-        );
+         return ( <div className="profile-container"> <p>No profile data found for this user.</p> </div> );
     }
 
+    // Convert the enrolled course array to a Set for quick lookups
+    const enrolledCourseIds = new Set(profile.courses.map(c => c._id));
+    
+    // Determine back path based on who's viewing (Admin or Faculty)
+    const backPath = isAdmin ? "/admin-dashboard" : "/faculty-dashboard";
+
     return (
-        <div className="profile-container">
+        <div className="dashboard-container">
             <div className="profile-actions">
-                <Link to={isAdmin ? "/admin-dashboard" : "/faculty-dashboard"} className="back-link">
+                <Link to={backPath} className="back-link">
                     ← Back to Dashboard
                 </Link>
                 
@@ -126,7 +155,7 @@ const StudentProfile = () => {
                     Edit Profile
                 </Link>
 
-                {/* --- 5. ADMIN-ONLY BUTTONS --- */}
+                {/* --- ADMIN-ONLY BUTTONS --- */}
                 {isAdmin && (
                     <>
                         <button 
@@ -160,6 +189,49 @@ const StudentProfile = () => {
             </div>
             
             <section className="space-y-6">
+                
+                {/* --- NEW: COURSE ENROLLMENT MANAGEMENT SECTION --- */}
+                <div>
+                    <h2>Course Enrollment Management</h2>
+                    <p>Modify the courses this student is currently enrolled in.</p>
+                    
+                    <div className="item-list" style={{maxHeight: '350px'}}>
+                        {allCourses.length > 0 ? (
+                            allCourses.map(course => {
+                                const isEnrolled = enrolledCourseIds.has(course._id);
+                                return (
+                                    <div key={course._id} className="course-card">
+                                        <div className="course-card-info">
+                                            <h3>{course.code} - {course.title}</h3>
+                                        </div>
+                                        <div className="admin-button-group" style={{flexDirection: 'row', gap: '1rem'}}>
+                                            {isEnrolled ? (
+                                                <button 
+                                                    onClick={() => handleEnrollmentChange(course._id, 'unenroll')}
+                                                    className="delete-button"
+                                                >
+                                                    Unenroll
+                                                </button>
+                                            ) : (
+                                                <button 
+                                                    onClick={() => handleEnrollmentChange(course._id, 'enroll')}
+                                                    className="enroll-button"
+                                                >
+                                                    Enroll
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })
+                        ) : (
+                            <p>No courses available to manage.</p>
+                        )}
+                    </div>
+                </div>
+
+                {/* --- EXISTING SECTIONS BELOW --- */}
+
                 <div>
                     <h2>Personal Details</h2>
                     <p><strong>First Name:</strong> {profile.firstName}</p>
@@ -170,30 +242,6 @@ const StudentProfile = () => {
                     <p><strong>WhatsApp Number:</strong> {profile.isWhatsappSame ? profile.mobileNumber : (profile.whatsappNumber || 'Not set')}</p>
                 </div>
                 
-                {/* --- 6. NEW ENROLLED COURSES SECTION --- */}
-                <div>
-                    <h2>Enrolled Courses</h2>
-                    <div className="item-list" style={{maxHeight: '200px'}}>
-                        {profile.courses && profile.courses.length > 0 ? (
-                            profile.courses.map(course => (
-                                <div key={course._id} className="course-card">
-                                    <div className="course-card-info">
-                                        <h3>{course.code} - {course.title}</h3>
-                                    </div>
-                                </div>
-                            ))
-                        ) : (
-                            <p>This student is not enrolled in any courses.</p>
-                        )}
-                    </div>
-                </div>
-                {/* --- END OF NEW SECTION --- */}
-
-                <div>
-                    <h2>Confidential Information</h2>
-                    <p><strong>Family Income:</strong> ${profile.familyIncome || 'Not set'}</p>
-                </div>
-
                 <div>
                     <h2>Academic Details</h2>
                     <p><strong>Marks:</strong> {profile.marks || 'Not set'}</p>

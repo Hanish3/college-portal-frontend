@@ -1,4 +1,4 @@
-/* src/components/ViewSurveyResults.js (NEW VERSION) */
+/* src/components/ViewSurveyResults.js (UPDATED FOR COLLAPSIBLE VIEW) */
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
@@ -9,6 +9,9 @@ const ViewSurveyResults = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [dashboardPath, setDashboardPath] = useState('/faculty-dashboard');
+    
+    // --- NEW STATE: Tracks the ID of the currently open/expanded survey card ---
+    const [expandedId, setExpandedId] = useState(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -52,6 +55,12 @@ const ViewSurveyResults = () => {
             default: return '';
         }
     };
+    
+    // --- NEW: Toggle function to open/close the details ---
+    const toggleExpansion = (id) => {
+        setExpandedId(prevId => (prevId === id ? null : id));
+    };
+
 
     if (loading) {
         return <div className="dashboard-container"><p>Loading survey results...</p></div>;
@@ -61,51 +70,64 @@ const ViewSurveyResults = () => {
         <div className="dashboard-container">
             <Link to={dashboardPath} className="back-link">← Back to Dashboard</Link>
             <h1>Student Mood Survey Results</h1>
-            <p>Recent submissions from students, newest first.</p>
+            <p>Click on a student's name to view their detailed responses.</p>
             {error && <p className="login-error-message">{error}</p>}
             
             <div className="item-list" style={{maxHeight: 'none'}}>
                 {results.length > 0 ? (
                     results.map(res => (
                         <div key={res._id} className="survey-result-card">
-                            <div className="survey-result-header">
-                                <span className="survey-student-name">
+                            
+                            {/* --- CLICKABLE HEADER --- */}
+                            <div 
+                                className="survey-result-header" 
+                                onClick={() => toggleExpansion(res._id)}
+                                style={{cursor: 'pointer', userSelect: 'none', borderBottom: expandedId === res._id ? '1px solid rgba(255,255,255,0.1)' : 'none', paddingBottom: expandedId === res._id ? '1rem' : '0'}}
+                            >
+                                <span className="survey-student-name" style={{color: expandedId === res._id ? '#6e8efb' : '#ffffff'}}>
                                     {res.student ? res.student.name : 'Unknown Student'}
                                 </span>
-                                <span className="item-date">{formatDate(res.date)}</span>
+                                <span className="item-date">{formatDate(res.date)} 
+                                    <span style={{marginLeft: '1rem'}}>
+                                        {expandedId === res._id ? '▲' : '▼'}
+                                    </span>
+                                </span>
                             </div>
                             
-                            <div style={{display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem'}}>
-                                <div className={`survey-mood-badge ${getMoodClass(res.mood)}`}>
-                                    Mood: {res.mood}
-                                </div>
-                                <span style={{color: '#ccc'}}>Total Score: {res.totalScore}</span>
-                            </div>
-
-                            {/* --- NEW: Show Detailed Responses --- */}
-                            <div className="survey-responses-list" style={{marginTop: '1.5rem'}}>
-                                {res.responses && res.responses.map((r, index) => (
-                                    <div key={index} style={{
-                                        background: 'rgba(0,0,0,0.2)', 
-                                        padding: '0.75rem 1rem', 
-                                        borderRadius: '4px', 
-                                        marginBottom: '0.5rem'
-                                    }}>
-                                        <p style={{margin: 0, color: '#a0a0b0'}}>
-                                            <strong>Q:</strong> {r.questionText}
-                                        </p>
-                                        <p style={{margin: '0.25rem 0 0 0', color: '#fff', fontWeight: '500'}}>
-                                            <strong>A:</strong> {r.answerText} (Score: {r.score})
-                                        </p>
+                            {/* --- COLLAPSIBLE CONTENT --- */}
+                            {expandedId === res._id && (
+                                <div style={{paddingTop: '1rem'}}>
+                                    <div style={{display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem'}}>
+                                        <div className={`survey-mood-badge ${getMoodClass(res.mood)}`}>
+                                            Mood: {res.mood}
+                                        </div>
+                                        <span style={{color: '#ccc'}}>Total Score: {res.totalScore}</span>
                                     </div>
-                                ))}
-                            </div>
-                            {/* --- END NEW SECTION --- */}
-                            
-                            {res.comments && (
-                                <p className="survey-result-comment">
-                                    <strong>Comments:</strong> "{res.comments}"
-                                </p>
+
+                                    <div className="survey-responses-list" style={{marginTop: '1.5rem'}}>
+                                        {res.responses && res.responses.map((r, index) => (
+                                            <div key={index} style={{
+                                                background: 'rgba(0,0,0,0.2)', 
+                                                padding: '0.75rem 1rem', 
+                                                borderRadius: '4px', 
+                                                marginBottom: '0.5rem'
+                                            }}>
+                                                <p style={{margin: 0, color: '#a0a0b0'}}>
+                                                    <strong>Q:</strong> {r.questionText}
+                                                </p>
+                                                <p style={{margin: '0.25rem 0 0 0', color: '#fff', fontWeight: '500'}}>
+                                                    <strong>A:</strong> {r.answerText} (Score: {r.score})
+                                                </p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    
+                                    {res.comments && (
+                                        <p className="survey-result-comment">
+                                            <strong>Comments:</strong> "{res.comments}"
+                                        </p>
+                                    )}
+                                </div>
                             )}
                         </div>
                     ))
