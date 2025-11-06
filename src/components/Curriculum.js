@@ -1,17 +1,19 @@
+/* src/components/Curriculum.js */
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 
 const Curriculum = () => {
-    // --- (All state and functions are unchanged) ---
     const [allCourses, setAllCourses] = useState([]);
     const [myCourseIds, setMyCourseIds] = useState(new Set());
     const [loading, setLoading] = useState(true);
     const [userRole, setUserRole] = useState(null);
 
+    // --- NEW: Stricter check for Admin role ---
+    const [isAdmin, setIsAdmin] = useState(false);
+
     const fetchData = async () => {
-        // ... (this function is unchanged and correct from last time)
         try {
             const token = localStorage.getItem('token');
             const config = { headers: { 'x-auth-token': token } };
@@ -20,7 +22,12 @@ const Curriculum = () => {
                 const decoded = jwtDecode(token);
                 role = decoded.user.role;
                 setUserRole(role);
+                // --- NEW: Set the specific admin state ---
+                if (role === 'admin') {
+                    setIsAdmin(true);
+                }
             }
+            
             const allCoursesRes = await axios.get('http://localhost:5000/api/courses', config);
             setAllCourses(allCoursesRes.data);
             if (role === 'student') {
@@ -80,8 +87,14 @@ const Curriculum = () => {
         }
     };
 
-    const isAdmin = userRole === 'admin' || userRole === 'faculty';
-    const dashboardPath = isAdmin ? '/admin-dashboard' : '/student-dashboard';
+    // --- UPDATED: This dashboard path logic is now simpler ---
+    const getDashboardPath = () => {
+        if (userRole === 'admin') return '/admin-dashboard';
+        if (userRole === 'faculty') return '/faculty-dashboard';
+        return '/student-dashboard';
+    };
+    const dashboardPath = getDashboardPath();
+    // --- END OF UPDATE ---
 
     if (loading) {
         return <div className="dashboard-container"><p>Loading courses...</p></div>;
@@ -90,9 +103,12 @@ const Curriculum = () => {
     return (
         <div className="dashboard-container">
             <Link to={dashboardPath} className="back-link">← Back to Dashboard</Link>
+            
+            {/* --- UPDATED: Title now depends on Admin state --- */}
             {isAdmin ? ( <h1>Manage Courses</h1> ) : ( <h1>Course Enrollment</h1> )}
             {isAdmin ? ( <p>Here you can add, edit, or delete all available courses.</p> ) : ( <p>Here you can enroll in or leave courses for the semester.</p> )}
 
+            {/* --- UPDATED: This button is now ADMIN-ONLY --- */}
             {isAdmin && (
                 <div className="admin-actions" style={{ marginBottom: '2rem' }}>
                     <Link to="/admin-create-course" className="action-button" style={{backgroundColor: '#28a745'}}>
@@ -110,14 +126,22 @@ const Curriculum = () => {
                                 <div className="course-card-info">
                                     <h3>{course.code} - {course.title}</h3>
                                     <p>{course.description}</p>
+                                    
+                                    {/* --- UPDATED: Show faculty to Admin AND Faculty --- */}
+                                    {(isAdmin || userRole === 'faculty') && (
+                                        <p style={{color: '#a0a0b0', margin: '0.5rem 0 0 0', fontSize: '0.9rem'}}>
+                                            <strong>Faculty:</strong> {course.faculty ? course.faculty.name : 'Unassigned'}
+                                        </p>
+                                    )}
                                 </div>
                                 
+                                {/* --- UPDATED: Buttons are now role-specific --- */}
                                 {isAdmin ? (
-                                    // --- NEW BUTTON WRAPPER ---
+                                    // ADMINS see Edit/Delete buttons
                                     <div className="admin-button-group">
                                         <Link 
                                             to={`/admin/edit-course/${course._id}`}
-                                            className="edit-button" // <-- NEW EDIT BUTTON
+                                            className="edit-button"
                                         >
                                             Edit
                                         </Link>
@@ -128,17 +152,19 @@ const Curriculum = () => {
                                             Delete
                                         </button>
                                     </div>
+                                ) : isEnrolled ? (
+                                    // STUDENTS see Leave button
+                                    <button onClick={() => handleUnenroll(course._id)} className="enroll-button leave-button">
+                                        Leave Course
+                                    </button>
+                                ) : (userRole === 'student') ? (
+                                    // STUDENTS see Enroll button
+                                    <button onClick={() => handleEnroll(course._id)} className="enroll-button">
+                                        Enroll
+                                    </button>
                                 ) : (
-                                    // ... (student buttons are unchanged) ...
-                                    isEnrolled ? (
-                                        <button onClick={() => handleUnenroll(course._id)} className="enroll-button leave-button">
-                                            Leave Course
-                                        </button>
-                                    ) : (
-                                        <button onClick={() => handleEnroll(course._id)} className="enroll-button">
-                                            Enroll
-                                        </button>
-                                    )
+                                    // Faculty see nothing here
+                                    null 
                                 )}
                             </div>
                         );

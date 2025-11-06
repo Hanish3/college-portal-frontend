@@ -1,38 +1,55 @@
+/* src/components/EditCourse.js */
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 
 const EditCourse = () => {
+    // --- UPDATED: Added 'faculty' to state ---
     const [formData, setFormData] = useState({
         code: '',
         title: '',
         description: '',
         syllabusUrl: '',
-        timetableUrl: ''
+        timetableUrl: '',
+        faculty: '' // This will hold the selected faculty ID
     });
+    
+    // --- NEW: State for the faculty dropdown ---
+    const [facultyList, setFacultyList] = useState([]);
+    
     const [statusMessage, setStatusMessage] = useState('');
     const [loading, setLoading] = useState(true);
     const { courseId } = useParams(); // Get the ID from the URL
     const navigate = useNavigate();
 
-    // 1. Fetch existing course data
+    // --- UPDATED: Fetch both course details AND faculty list ---
     useEffect(() => {
-        const fetchCourse = async () => {
+        const fetchData = async () => {
             try {
                 const token = localStorage.getItem('token');
                 const config = { headers: { 'x-auth-token': token } };
                 
-                // Use our new API route
-                const res = await axios.get(`http://localhost:5000/api/courses/${courseId}`, config);
-                
+                // Fetch both sets of data in parallel
+                const [courseRes, facultyRes] = await Promise.all([
+                    axios.get(`http://localhost:5000/api/courses/${courseId}`, config),
+                    axios.get('http://localhost:5000/api/users/faculty', config)
+                ]);
+
+                // Set the faculty list for the dropdown
+                setFacultyList(facultyRes.data);
+
                 // Set the form data with the existing course details
                 setFormData({
-                    code: res.data.code || '',
-                    title: res.data.title || '',
-                    description: res.data.description || '',
-                    syllabusUrl: res.data.syllabusUrl || '',
-                    timetableUrl: res.data.timetableUrl || ''
+                    code: courseRes.data.code || '',
+                    title: courseRes.data.title || '',
+                    description: courseRes.data.description || '',
+                    syllabusUrl: courseRes.data.syllabusUrl || '',
+                    timetableUrl: courseRes.data.timetableUrl || '',
+                    // The backend populates faculty, so we get an object.
+                    // We must store just the ID in our form state.
+                    faculty: courseRes.data.faculty ? courseRes.data.faculty._id : ''
                 });
+                
                 setLoading(false);
             } catch (err) {
                 console.error(err);
@@ -40,10 +57,12 @@ const EditCourse = () => {
                 setLoading(false);
             }
         };
-        fetchCourse();
+        fetchData();
     }, [courseId]); // Re-run if ID changes
 
-    const { code, title, description, syllabusUrl, timetableUrl } = formData;
+    // --- UPDATED: Destructure new 'faculty' field ---
+    const { code, title, description, syllabusUrl, timetableUrl, faculty } = formData;
+    
     const onChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
 
     // 2. Submit the *updated* data
@@ -60,6 +79,7 @@ const EditCourse = () => {
         
         try {
             // Use the PUT route to update
+            // The 'formData' object now correctly includes the 'faculty' ID
             await axios.put(`http://localhost:5000/api/courses/${courseId}`, formData, config);
             
             setStatusMessage('Course updated successfully!');
@@ -94,6 +114,24 @@ const EditCourse = () => {
                     <label>Description</label>
                     <textarea name="description" value={description} onChange={onChange}></textarea>
                 </div>
+                
+                {/* --- NEW: Faculty Assignment Dropdown --- */}
+                <div className="form-group">
+                    <label>Assign Faculty (Optional)</label>
+                    <select name="faculty" value={faculty} onChange={onChange}>
+                        <option value="">-- Unassigned --</option>
+                        {facultyList.length > 0 ? (
+                            facultyList.map(prof => (
+                                <option key={prof._id} value={prof._id}>
+                                    {prof.name}
+                                </option>
+                            ))
+                        ) : (
+                            <option value="" disabled>Loading faculty...</option>
+                        )}
+                    </select>
+                </div>
+                {/* --- END NEW --- */}
                 
                 <div className="form-group">
                     <label>Syllabus URL (Optional)</label>

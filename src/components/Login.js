@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom'; // <-- Includes Link
 import { jwtDecode } from 'jwt-decode';
 // --- DELETED: The 3D scene import ---
 // import Scene3D from './Scene3D'; 
@@ -32,11 +32,15 @@ const Login = () => {
             const decoded = jwtDecode(token);
             const userRole = decoded.user.role;
 
-            if (userRole === 'admin' || userRole === 'faculty') {
+            // --- THIS IS THE UPDATED REDIRECTION LOGIC ---
+            if (userRole === 'admin') {
                 navigate('/admin-dashboard');
+            } else if (userRole === 'faculty') {
+                navigate('/faculty-dashboard'); // <-- Faculty go here
             } else {
                 navigate('/student-dashboard');
             }
+            // --- END OF UPDATE ---
 
         } catch (err) {
             console.error(err.response.data);
@@ -87,6 +91,13 @@ const Login = () => {
                         
                         <button type="submit" className="login-button">Login</button>
                     </form>
+
+                    {/* --- "Register here" Link section --- */}
+                    <p style={{textAlign: 'center', marginTop: '1.5rem', color: '#a0a0b0'}}>
+                        Don't have an account? 
+                        <Link to="/register" style={{color: '#6e8efb', fontWeight: 'bold'}}> Register here</Link>
+                    </p>
+                    {/* --- END OF Link SECTION --- */}
                 </div>
 
                 {/* --- 2. RIGHT SIDE (INFO) --- */}

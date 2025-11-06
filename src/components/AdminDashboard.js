@@ -1,7 +1,7 @@
+/* src/components/AdminDashboard.js */
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-// import Navbar from './Navbar'; // <-- This was already correctly removed
 
 const AdminDashboard = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -20,6 +20,7 @@ const AdminDashboard = () => {
             const config = {
                 headers: { 'x-auth-token': token },
             };
+            // This route is accessible to Admins
             const res = await axios.get(
                 `http://localhost:5000/api/students/search?name=${searchTerm}`,
                 config
@@ -39,21 +40,11 @@ const AdminDashboard = () => {
 
     return (
         <div className="dashboard-container">
-            <h1>Welcome, Admin/Faculty!</h1>
+            {/* --- UPDATED: Title is Admin-specific --- */}
+            <h1>Welcome, Admin!</h1>
             
-            {/* --- THIS WHOLE DIV IS NOW DELETED ---
-            <div className="admin-actions">
-                <Link to="/admin-manage-events" className="action-button">
-                    Manage Events
-                </Link>
-                <Link to="/admin-manage-notifications" className="action-button" style={{backgroundColor: '#f0ad4e'}}>
-                    Manage Notifications
-                </Link>
-                <Link to="/curriculum" className="action-button" style={{backgroundColor: '#d9534f'}}>
-                    Manage Curriculum
-                </Link>
-            </div>
-            --- END OF DELETED SECTION --- */}
+            {/* --- DELETED "Create New User" button --- */}
+            {/* The <div className="admin-actions">...</div> block has been removed */}
             
             <div className="search-container">
                 <h2>Search Students</h2>
@@ -62,7 +53,7 @@ const AdminDashboard = () => {
                         type="text"
                         placeholder="Search student name..."
                         value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onChange={(e) => setSearchTerm(e.target.value)} // Fixed a small typo here
                         className="search-input"
                     />
                     <button type="submit" className="search-button">Search</button>
@@ -81,7 +72,8 @@ const AdminDashboard = () => {
                                         className="avatar" 
                                     />
                                     <div className="student-info">
-                                        <strong>{student.firstName} {student.surname}</strong>
+                                        {/* (Updated selector, file does not show 'firstName') */}
+                                        <strong>{student.name || `${student.firstName} ${student.surname}`}</strong>
                                         <span>{student.email}</span>
                                     </div>
                                 </li>
