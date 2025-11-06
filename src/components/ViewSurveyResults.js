@@ -1,4 +1,4 @@
-/* src/components/ViewSurveyResults.js (NEW FILE) */
+/* src/components/ViewSurveyResults.js (NEW VERSION) */
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
@@ -75,9 +75,32 @@ const ViewSurveyResults = () => {
                                 <span className="item-date">{formatDate(res.date)}</span>
                             </div>
                             
-                            <div className={`survey-mood-badge ${getMoodClass(res.mood)}`}>
-                                {res.mood}
+                            <div style={{display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem'}}>
+                                <div className={`survey-mood-badge ${getMoodClass(res.mood)}`}>
+                                    Mood: {res.mood}
+                                </div>
+                                <span style={{color: '#ccc'}}>Total Score: {res.totalScore}</span>
                             </div>
+
+                            {/* --- NEW: Show Detailed Responses --- */}
+                            <div className="survey-responses-list" style={{marginTop: '1.5rem'}}>
+                                {res.responses && res.responses.map((r, index) => (
+                                    <div key={index} style={{
+                                        background: 'rgba(0,0,0,0.2)', 
+                                        padding: '0.75rem 1rem', 
+                                        borderRadius: '4px', 
+                                        marginBottom: '0.5rem'
+                                    }}>
+                                        <p style={{margin: 0, color: '#a0a0b0'}}>
+                                            <strong>Q:</strong> {r.questionText}
+                                        </p>
+                                        <p style={{margin: '0.25rem 0 0 0', color: '#fff', fontWeight: '500'}}>
+                                            <strong>A:</strong> {r.answerText} (Score: {r.score})
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
+                            {/* --- END NEW SECTION --- */}
                             
                             {res.comments && (
                                 <p className="survey-result-comment">

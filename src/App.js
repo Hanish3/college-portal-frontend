@@ -26,8 +26,9 @@ import MyAttendance from './components/MyAttendance.js';
 import CourseAttendance from './components/CourseAttendance.js';
 import Timetable from './components/Timetable.js';
 import EditCourse from './components/EditCourse.js';
-// --- 1. IMPORT THE NEW COMPONENT ---
 import ViewSurveyResults from './components/ViewSurveyResults.js';
+// --- 1. IMPORT THE NEW SURVEY PAGE ---
+import MySurvey from './components/MySurvey.js';
 
 
 /**
@@ -75,8 +76,6 @@ function App() {
                     <Route path="/admin/edit-student/:userId" element={<EditStudentProfile />} />
                     <Route path="/admin/mark-attendance/:userId" element={<MarkAttendance />} />
                     <Route path="/admin/edit-course/:courseId" element={<EditCourse />} />
-                    
-                    {/* --- 2. ADD THE NEW SURVEY ROUTE --- */}
                     <Route path="/admin/survey-results" element={<ViewSurveyResults />} />
 
                     {/* (Student Routes) */}
@@ -84,6 +83,9 @@ function App() {
                     <Route path="/student/edit-profile" element={<EditMyProfile />} />
                     <Route path="/my-attendance" element={<MyAttendance />} />
                     <Route path="/my-attendance/:courseId" element={<CourseAttendance />} />
+                    
+                    {/* --- 2. ADD THE NEW SURVEY ROUTE --- */}
+                    <Route path="/my-survey" element={<MySurvey />} />
 
                     {/* (Shared Routes) */}
                     <Route path="/curriculum" element={<Curriculum />} /> 

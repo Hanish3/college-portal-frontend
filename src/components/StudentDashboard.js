@@ -1,7 +1,7 @@
+/* src/components/StudentDashboard.js */
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-// We no longer need the 'Link' component, so we can remove it
-// import { Link } from 'react-router-dom'; 
+// --- NO LONGER IMPORTING STUDENTSURVEY ---
 
 const StudentDashboard = () => {
     const [events, setEvents] = useState([]);
@@ -46,18 +46,12 @@ const StudentDashboard = () => {
     return (
         <div className="dashboard-container">
             
-            {/* --- THIS WHOLE DIV IS NOW DELETED ---
-            <div className="profile-actions"> 
-                <Link to="/student/edit-profile" className="action-button" style={{backgroundColor: '#5bc0de'}}>
-                    Edit My Profile
-                </Link>
-                <Link to="/curriculum" className="nav-link">View Curriculum →</Link>
-            </div>
-            --- END OF DELETED SECTION --- */}
-
             <h1>Welcome, Student!</h1>
             <p>This is your dashboard. See your events and notifications below.</p>
-            <div className="dashboard-columns">
+
+            {/* --- SURVEY COMPONENT REMOVED FROM HERE --- */}
+
+            <div className="dashboard-columns" style={{marginTop: '2rem'}}>
                 {/* --- EVENTS COLUMN --- */}
                 <div className="dashboard-column">
                     <h2>Upcoming Events</h2>
