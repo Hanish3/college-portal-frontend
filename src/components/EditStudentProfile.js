@@ -1,10 +1,10 @@
+/* src/components/EditStudentProfile.js */
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-// import Navbar from './Navbar'; // <-- DELETED
 
 const EditStudentProfile = () => {
-    // ... (your existing useState code is perfect) ...
+    // --- 1. 'marks' REMOVED FROM STATE ---
     const [formData, setFormData] = useState({
         firstName: '',
         surname: '',
@@ -14,7 +14,7 @@ const EditStudentProfile = () => {
         whatsappNumber: '',
         photo: '',
         familyIncome: '',
-        marks: '',
+        // marks: '', // <-- This field is obsolete
     });
     const [loading, setLoading] = useState(true);
     const [statusMessage, setStatusMessage] = useState('');
@@ -22,7 +22,6 @@ const EditStudentProfile = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        // ... (your existing useEffect code is perfect) ...
          const fetchProfile = async () => {
             const token = localStorage.getItem('token');
             const config = {
@@ -30,6 +29,7 @@ const EditStudentProfile = () => {
             };
             try {
                 const res = await axios.get(`http://localhost:5000/api/students/${userId}`, config);
+                // --- 2. 'marks' REMOVED FROM setFormData ---
                 setFormData({
                     firstName: res.data.firstName || '',
                     surname: res.data.surname || '',
@@ -39,7 +39,7 @@ const EditStudentProfile = () => {
                     whatsappNumber: res.data.whatsappNumber || '',
                     photo: res.data.photo || '',
                     familyIncome: res.data.familyIncome || '',
-                    marks: res.data.marks || '',
+                    // marks: res.data.marks || '', // <-- This field is obsolete
                 });
                 setLoading(false);
             } catch (err) {
@@ -51,6 +51,7 @@ const EditStudentProfile = () => {
         fetchProfile();
     }, [userId]);
 
+    // --- 3. 'marks' REMOVED FROM DESTRUCTURING ---
     const { 
         firstName, 
         surname, 
@@ -59,12 +60,10 @@ const EditStudentProfile = () => {
         isWhatsappSame, 
         whatsappNumber, 
         photo, 
-        familyIncome, 
-        marks 
+        familyIncome 
     } = formData;
 
     const onChange = e => {
-        // ... (your existing onChange code is perfect) ...
         const { name, value, type, checked } = e.target;
         setFormData({ 
             ...formData, 
@@ -73,7 +72,6 @@ const EditStudentProfile = () => {
     };
 
     const onSubmit = async e => {
-        // ... (your existing onSubmit code is perfect) ...
         e.preventDefault();
         const token = localStorage.getItem('token');
         const config = {
@@ -83,6 +81,7 @@ const EditStudentProfile = () => {
             },
         };
         try {
+            // formData no longer contains 'marks', so it won't be sent
             await axios.put(`http://localhost:5000/api/students/${userId}`, formData, config);
             setStatusMessage('Profile updated successfully!');
             setTimeout(() => navigate(`/student/${userId}`), 2000);
@@ -93,19 +92,16 @@ const EditStudentProfile = () => {
     };
 
     if (loading) {
-        // REMOVED NAVBAR AND PARENT DIV
         return <div className="dashboard-container"><p>Loading profile for editing...</p></div>;
     }
 
     return (
-        // REMOVED NAVBAR AND PARENT DIV
         <div className="dashboard-container">
             <Link to={`/student/${userId}`} className="back-link">← Cancel and Go Back</Link>
             <h1>Edit Student Profile</h1>
             
             <form className="admin-form" onSubmit={onSubmit}>
                 <h2>Personal Details</h2>
-                {/* ... (all your form fields are perfect) ... */}
                 <div className="form-group">
                     <label>First Name</label>
                     <input type="text" name="firstName" value={firstName} onChange={onChange} />
@@ -141,11 +137,8 @@ const EditStudentProfile = () => {
                     <label>Family Income</label>
                     <input type="number" name="familyIncome" value={familyIncome} onChange={onChange} />
                 </div>
-                <h2>Academic Details</h2>
-                <div className="form-group">
-                    <label>Marks</label>
-                    <input type="text" name="marks" value={marks} onChange={onChange} />
-                </div>
+                
+                {/* --- 4. ACADEMIC DETAILS SECTION REMOVED FROM HERE --- */}
                 
                 <button type="submit" className="form-submit-button">Save Changes</button>
                 {statusMessage && <p className="form-message">{statusMessage}</p>}

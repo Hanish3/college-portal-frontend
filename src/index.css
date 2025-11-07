@@ -1208,3 +1208,82 @@ button:hover {
 .roster-details li {
     margin-bottom: 0.5rem;
 }
+
+/* --- NEW: Profile Page Actions Dropdown --- */
+
+.profile-actions {
+    display: flex;
+    justify-content: space-between; /* This is key */
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.actions-menu-wrapper {
+    position: relative; /* Parent for the absolute dropdown */
+}
+
+.actions-menu-button {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 0.5rem 0.75rem;
+    line-height: 1;
+    transition: background-color 0.2s ease;
+}
+
+.actions-menu-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 0.5rem; /* Space from the button */
+    width: 200px;
+    background: rgba(30, 30, 45, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    z-index: 110;
+    overflow: hidden; /* Ensures rounded corners on items */
+    padding: 0.25rem 0;
+}
+
+.dropdown-menu-item {
+    display: block;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    box-sizing: border-box; /* Important for padding + width */
+    text-align: left;
+    color: #e0e0e0;
+    background: transparent;
+    border: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.dropdown-menu-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+/* Special hover colors for danger items */
+.dropdown-menu-item-suspend:hover {
+    background: #f0ad4e;
+    color: #333;
+}
+
+.dropdown-menu-item-remove:hover {
+    background: #d9534f;
+    color: #fff;
+}

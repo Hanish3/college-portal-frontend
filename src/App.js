@@ -28,10 +28,11 @@ import Timetable from './components/Timetable.js';
 import EditCourse from './components/EditCourse.js';
 import ViewSurveyResults from './components/ViewSurveyResults.js';
 import MySurvey from './components/MySurvey.js';
-
-// --- 1. IMPORT THE NEW GRADEBOOK COMPONENTS ---
 import FacultyGradebook from './components/FacultyGradebook.js';
 import MyGrades from './components/MyGrades.js';
+
+// --- 1. IMPORT THE NEW EDIT EVENT COMPONENT ---
+import EditEvent from './components/EditEvent.js';
 
 
 /**
@@ -67,7 +68,6 @@ function App() {
 
                     {/* (Faculty Routes) */}
                     <Route path="/faculty/take-attendance/:courseId" element={<TakeAttendance />} />
-                    {/* --- 2. ADD NEW FACULTY GRADEBOOK ROUTE --- */}
                     <Route path="/faculty/gradebook" element={<FacultyGradebook />} />
 
                     {/* (Admin Routes) */}
@@ -82,6 +82,9 @@ function App() {
                     <Route path="/admin/mark-attendance/:userId" element={<MarkAttendance />} />
                     <Route path="/admin/edit-course/:courseId" element={<EditCourse />} />
                     <Route path="/admin/survey-results" element={<ViewSurveyResults />} />
+                    
+                    {/* --- 2. ADD THE NEW EDIT EVENT ROUTE --- */}
+                    <Route path="/admin/edit-event/:eventId" element={<EditEvent />} />
 
                     {/* (Student Routes) */}
                     <Route path="/my-profile" element={<MyProfile />} />
@@ -89,7 +92,6 @@ function App() {
                     <Route path="/my-attendance" element={<MyAttendance />} />
                     <Route path="/my-attendance/:courseId" element={<CourseAttendance />} />
                     <Route path="/my-survey" element={<MySurvey />} />
-                    {/* --- 3. ADD NEW STUDENT GRADES ROUTE --- */}
                     <Route path="/my-grades" element={<MyGrades />} />
 
                     {/* (Shared Routes) */}

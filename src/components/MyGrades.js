@@ -3,10 +3,20 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 
+// --- THESE LINES WERE THE PROBLEM AND HAVE BEEN DELETED ---
+// import { auth, facultyAndAdminAuth } from '../middleware/auth';
+// import Grade from '../models/Grade';
+// import StudentProfile from '../models/StudentProfile';
+// --- END OF FIX ---
+
 const MyGrades = () => {
     const [myGrades, setMyGrades] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+
+    // --- 1. ADD STATE FOR SUSPENSION ---
+    const [isSuspended, setIsSuspended] = useState(false);
+    const [suspensionMessage, setSuspensionMessage] = useState('');
 
     useEffect(() => {
         const fetchMyGrades = async () => {
@@ -21,7 +31,14 @@ const MyGrades = () => {
                 setLoading(false);
             } catch (err) {
                 console.error('Error fetching grades:', err);
-                setError('Failed to load your grades. Please try again later.');
+
+                // --- 2. ADD SUSPENSION CHECK ---
+                if (err.response && (err.response.status === 403 || err.response.status === 401)) {
+                    setIsSuspended(true);
+                    setSuspensionMessage(err.response.data.msg || 'Your account is suspended.');
+                } else {
+                    setError('Failed to load your grades. Please try again later.');
+                }
                 setLoading(false);
             }
         };
@@ -53,6 +70,29 @@ const MyGrades = () => {
 
     if (loading) {
         return <div className="dashboard-container"><p>Loading your grades...</p></div>;
+    }
+
+    // --- 3. ADD RENDER BLOCK FOR SUSPENSION ---
+    if (isSuspended) {
+        return (
+            <div className="dashboard-container">
+                <Link to="/student-dashboard" className="back-link">← Back to Dashboard</Link>
+                <h1>My Grades</h1>
+                <div 
+                    className="login-error-message" 
+                    style={{
+                        textAlign: 'center', 
+                        padding: '2rem', 
+                        fontSize: '1.2rem'
+                    }}
+                >
+                    {suspensionMessage}
+                    <p style={{fontSize: '1rem', color: '#e0e0e0', marginTop: '1rem'}}>
+                        Please contact an administrator to resolve this issue.
+                    </p>
+                </div>
+            </div>
+        );
     }
 
     return (

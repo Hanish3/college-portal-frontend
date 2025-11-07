@@ -8,6 +8,10 @@ const MyProfile = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
+    // --- 1. ADD STATE FOR SUSPENSION ---
+    const [isSuspended, setIsSuspended] = useState(false);
+    const [suspensionMessage, setSuspensionMessage] = useState('');
+
     useEffect(() => {
         const fetchMyProfile = async () => {
             try {
@@ -20,14 +24,20 @@ const MyProfile = () => {
                 const config = {
                     headers: { 'x-auth-token': token },
                 };
-                // Use the student's 'me' route
+                
                 const res = await axios.get(`http://localhost:5000/api/students/me`, config);
                 setProfile(res.data);
                 setLoading(false);
             } catch (err) {
-                const errMsg = err.response?.data?.msg || 'Failed to fetch profile data.';
-                console.error(errMsg);
-                setError(`Error: ${errMsg}`);
+                // --- 2. ADD SUSPENSION CHECK ---
+                if (err.response && (err.response.status === 403 || err.response.status === 401)) {
+                    setIsSuspended(true);
+                    setSuspensionMessage(err.response.data.msg || 'Your account is suspended.');
+                } else {
+                    const errMsg = err.response?.data?.msg || 'Failed to fetch profile data.';
+                    console.error(errMsg);
+                    setError(`Error: ${errMsg}`);
+                }
                 setLoading(false);
             }
         };
@@ -43,10 +53,40 @@ const MyProfile = () => {
         );
     }
 
+    // --- 3. ADD RENDER BLOCK FOR SUSPENSION ---
+    if (isSuspended) {
+        return (
+            <div className="profile-container">
+                <div className="profile-actions">
+                    <Link to="/student-dashboard" className="back-link">← Back to Dashboard</Link>
+                </div>
+                <h1>My Profile</h1>
+                <div 
+                    className="login-error-message" 
+                    style={{
+                        textAlign: 'center', 
+                        padding: '2rem', 
+                        fontSize: '1.2rem'
+                    }}
+                >
+                    {suspensionMessage}
+                    <p style={{fontSize: '1rem', color: '#e0e0e0', marginTop: '1rem'}}>
+                        Please contact an administrator to resolve this issue.
+                    </p>
+                </div>
+            </div>
+        );
+    }
+    // --- END RENDER BLOCK ---
+
+
     if (error) {
         return (
             <div className="profile-container">
-                <p>{error}</p>
+                 <div className="profile-actions">
+                    <Link to="/student-dashboard" className="back-link">← Back to Dashboard</Link>
+                </div>
+                <p className="login-error-message">{error}</p>
             </div>
         );
     }
@@ -89,11 +129,6 @@ const MyProfile = () => {
                 <div>
                     <h2>Confidential Information</h2>
                     <p><strong>Family Income:</strong> ${profile.familyIncome || 'Not set'}</p>
-                </div>
-
-                <div>
-                    <h2>Academic Details</h2>
-                    <p><strong>Marks:</strong> {profile.marks || 'Not set'}</p>
                 </div>
 
                 <div>

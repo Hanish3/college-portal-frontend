@@ -12,7 +12,11 @@ const MySurvey = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
-    // 1. Check submission status AND fetch questions
+    // --- 1. ADD STATE FOR SUSPENSION ---
+    const [isSuspended, setIsSuspended] = useState(false);
+    const [suspensionMessage, setSuspensionMessage] = useState('');
+
+    // 2. Check submission status AND fetch questions
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -32,15 +36,21 @@ const MySurvey = () => {
                     setLoading(false);
                 }
             } catch (err) {
-                console.error("Error fetching survey data:", err);
-                setError('Failed to load survey. Please try again later.');
+                // --- 3. ADD SUSPENSION CHECK ---
+                if (err.response && (err.response.status === 403 || err.response.status === 401)) {
+                    setIsSuspended(true);
+                    setSuspensionMessage(err.response.data.msg || 'Your account is suspended.');
+                } else {
+                    console.error("Error fetching survey data:", err);
+                    setError('Failed to load survey. Please try again later.');
+                }
                 setLoading(false); 
             }
         };
         fetchData();
     }, []);
 
-    // 2. Handle when a user selects an answer
+    // 4. Handle when a user selects an answer
     const handleAnswerChange = (question, answer) => {
         setAnswers(prev => ({
             ...prev,
@@ -52,7 +62,7 @@ const MySurvey = () => {
         }));
     };
 
-    // 3. Handle the form submission
+    // 5. Handle the form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
         
@@ -83,7 +93,13 @@ const MySurvey = () => {
             await axios.post('http://localhost:5000/api/survey', body, config);
             setSubmittedToday(true); // Hide the form on success
         } catch (err) {
-            setError(err.response?.data?.msg || 'Failed to submit survey. Please try again.');
+            // Check for suspension *again* on submit, just in case
+            if (err.response && (err.response.status === 403 || err.response.status === 401)) {
+                setIsSuspended(true);
+                setSuspensionMessage(err.response.data.msg || 'Your account is suspended.');
+            } else {
+                setError(err.response?.data?.msg || 'Failed to submit survey. Please try again.');
+            }
         }
     };
 
@@ -91,6 +107,30 @@ const MySurvey = () => {
     if (loading) {
         return <div className="dashboard-container"><p>Loading survey...</p></div>;
     }
+
+    // --- 6. ADD RENDER BLOCK FOR SUSPENSION ---
+    if (isSuspended) {
+        return (
+            <div className="dashboard-container">
+                <Link to="/student-dashboard" className="back-link">← Back to Dashboard</Link>
+                <h1>My Daily Survey</h1>
+                <div 
+                    className="login-error-message" 
+                    style={{
+                        textAlign: 'center', 
+                        padding: '2rem', 
+                        fontSize: '1.2rem'
+                    }}
+                >
+                    {suspensionMessage}
+                    <p style={{fontSize: '1rem', color: '#e0e0e0', marginTop: '1rem'}}>
+                        Please contact an administrator to resolve this issue.
+                    </p>
+                </div>
+            </div>
+        );
+    }
+    // --- END RENDER BLOCK ---
 
     return (
         <div className="dashboard-container">
@@ -125,7 +165,7 @@ const MySurvey = () => {
                                     marginTop: '1rem'
                                 }}>
                                     {q.answers.map(a => (
-                                        <label key={a.text} className="status-radio" style={{width: '100%'}}>
+                                        <label key={a.text} className="status-radio" style={{width: '10R_E_M_I_N_D_E_R_S_E_N_T_I_N_E_L_E_R_R_O_R_S_E_N_T_I_N_E_L%'}}>
                                             <input 
                                                 type="radio" 
                                                 name={`status-${q._id}`} 

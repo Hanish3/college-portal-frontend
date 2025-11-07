@@ -1,5 +1,5 @@
 /* src/components/StudentProfile.js */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
@@ -8,22 +8,43 @@ const StudentProfile = () => {
     const { userId } = useParams();
     const navigate = useNavigate();
     
-    // --- (State is unchanged) ---
+    // State for data
     const [profile, setProfile] = useState(null);
     const [allCourses, setAllCourses] = useState([]); 
+    const [grades, setGrades] = useState([]); // <-- For new grades list
+    
+    // State for UI
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [message, setMessage] = useState('');
     const [isAdmin, setIsAdmin] = useState(false);
     
+    // State for 3-dot menu
+    const [menuOpen, setMenuOpen] = useState(false);
+    const menuRef = useRef(null); 
+
     const getPercentageColor = (percentage) => {
         if (percentage >= 75) return '#28a745';
         if (percentage >= 50) return '#f0ad4e';
         return '#d9534f';
     };
 
-    // --- (fetchProfileAndCourses is unchanged) ---
-    const fetchProfileAndCourses = async () => {
+    // Helper function to calculate grade percentage and color
+    const getGradeDetails = (grade) => {
+        if (!grade.totalMarks || grade.totalMarks === 0) {
+            return { percentage: 'N/A', color: '#e0e0e0' };
+        }
+        const percentage = (grade.marksObtained / grade.totalMarks) * 100;
+        let color;
+        if (percentage >= 85) color = '#28a745';
+        else if (percentage >= 70) color = '#5bc0de';
+        else if (percentage >= 50) color = '#f0ad4e';
+        else color = '#d9534f';
+        return { percentage: percentage.toFixed(1), color };
+    };
+
+    // Fetches ALL profile data (details, courses, and grades)
+    const fetchProfileData = async () => {
         try {
             const token = localStorage.getItem('token');
             if (!token) {
@@ -39,13 +60,16 @@ const StudentProfile = () => {
 
             const config = { headers: { 'x-auth-token': token } };
             
-            const [profileRes, allCoursesRes] = await Promise.all([
+            // Fetch all three data sources in parallel
+            const [profileRes, allCoursesRes, gradesRes] = await Promise.all([
                 axios.get(`http://localhost:5000/api/students/${userId}`, config),
-                axios.get('http://localhost:5000/api/courses', config)
+                axios.get('http://localhost:5000/api/courses', config),
+                axios.get(`http://localhost:5000/api/grades/student/${userId}`, config) // <-- Fetches grades
             ]);
             
             setProfile(profileRes.data);
             setAllCourses(allCoursesRes.data);
+            setGrades(gradesRes.data); // <-- Sets grades state
             setLoading(false);
         } catch (err) {
             const errMsg = err.response?.data?.msg || 'Failed to fetch profile data.';
@@ -55,11 +79,27 @@ const StudentProfile = () => {
         }
     };
     
+    // Run fetcher on component load
     useEffect(() => {
-        fetchProfileAndCourses();
+        fetchProfileData();
     }, [userId]);
     
-    // --- (handleEnrollmentChange is unchanged) ---
+    // This useEffect handles closing the 3-dot menu when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                setMenuOpen(false); 
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [menuRef]);
+    
+    
+    // --- Action Handlers ---
+
     const handleEnrollmentChange = async (courseId, action) => {
         const actionText = action === 'enroll' ? 'enrolling' : 'unenrolling';
         setMessage(`Processing ${actionText}...`);
@@ -89,43 +129,33 @@ const StudentProfile = () => {
         }
     };
     
-    // --- THIS IS THE UPDATED FUNCTION ---
     const handleSuspend = async () => {
         setError('');
         setMessage('');
-
-        // 1. Get dates from the Admin
         const startDate = prompt(`Suspension START date for ${profile.firstName}:\n(YYYY-MM-DD)`);
-        if (!startDate) return; // User cancelled
-
+        if (!startDate) return; 
         const endDate = prompt(`Suspension END date for ${profile.firstName}:\n(YYYY-MM-DD)`);
-        if (!endDate) return; // User cancelled
+        if (!endDate) return; 
 
-        // 2. Validate the dates
         if (new Date(endDate) <= new Date(startDate)) {
             setError('End date must be after start date.');
             return;
         }
 
-        // 3. Send the dates to the API
         try {
             const token = localStorage.getItem('token');
             const config = { headers: { 'x-auth-token': token } };
-            
-            // --- Send dates in the body ---
             const body = { startDate, endDate };
             await axios.put(`http://localhost:5000/api/users/suspend/${userId}`, body, config);
-
             setMessage(`User has been suspended from ${startDate} to ${endDate}. They must be reactivated from the "Manage Users" page.`);
             setError('');
+            setMenuOpen(false); // Close menu on action
         } catch (err) {
             setError(err.response?.data?.msg || 'Failed to suspend user.');
             setMessage('');
         }
     };
-    // --- END OF UPDATE ---
 
-    // --- (handleDelete is unchanged) ---
     const handleDelete = async () => {
         if (!window.confirm(`Are you sure you want to PERMANENTLY DELETE ${profile.firstName}? This cannot be undone.`)) return;
         try {
@@ -139,22 +169,19 @@ const StudentProfile = () => {
         }
     };
 
-    // --- (Render logic is unchanged) ---
-    if (loading) {
-        return ( <div className="profile-container"> <p>Loading profile...</p> S</div> );
-    }
 
+    if (loading) {
+        return ( <div className="profile-container"> <p>Loading profile...</p></div> );
+    }
     if (error) {
         return ( <div className="profile-container"> <p className="login-error-message">{error}</p> </div> );
     }
-    
     if (!profile) {
          return ( <div className="profile-container"> <p>No profile data found for this user.</p> </div> );
     }
 
     const enrolledCourseIds = new Set(profile.courses.map(c => c._id));
     const backPath = isAdmin ? "/admin-dashboard" : "/faculty-dashboard";
-    
     const percentage = profile.overallAttendancePercentage !== undefined 
                        ? profile.overallAttendancePercentage.toFixed(1)
                        : 'N/A';
@@ -162,48 +189,61 @@ const StudentProfile = () => {
 
     return (
         <div className="dashboard-container">
+            
+            {/* --- 3-DOT MENU SECTION --- */}
             <div className="profile-actions">
                 <Link to={backPath} className="back-link">
                     ← Back to Dashboard
                 </Link>
                 
-                <Link 
-                    to={`/admin/mark-attendance/${userId}`} 
-                    className="action-button" 
-                    style={{ backgroundColor: '#28a745' }}
-                >
-                    Mark Attendance
-                </Link>
-                <Link 
-                    to={`/admin/edit-student/${userId}`} 
-                    className="action-button"
-                >
-                    Edit Profile
-                </Link>
-
-                {isAdmin && (
-                    <>
-                        <button 
-                            onClick={handleSuspend}
-                            className="action-button" 
-                            style={{ backgroundColor: '#f0ad4e', color: '#333' }}
-                        >
-                            Suspend User
-                        </button>
-                        <button 
-                            onClick={handleDelete}
-                            className="action-button" 
-                            style={{ backgroundColor: '#d9534f' }}
-                        >
-                            Remove User
-                        </button>
-                    </>
-                )}
+                <div className="actions-menu-wrapper" ref={menuRef}>
+                    <button 
+                        onClick={() => setMenuOpen(!menuOpen)} 
+                        className="actions-menu-button"
+                    >
+                        &#8942; {/* Vertical ellipsis icon */}
+                    </button>
+                    
+                    {menuOpen && (
+                        <div className="dropdown-menu">
+                            <Link 
+                                to={`/admin/edit-student/${userId}`} 
+                                className="dropdown-menu-item"
+                            >
+                                Edit Profile
+                            </Link>
+                            <Link 
+                                to={`/admin/mark-attendance/${userId}`} 
+                                className="dropdown-menu-item" 
+                            >
+                                Mark Attendance
+                            </Link>
+                            
+                            {isAdmin && (
+                                <>
+                                    <button 
+                                        onClick={handleSuspend}
+                                        className="dropdown-menu-item dropdown-menu-item-suspend" 
+                                    >
+                                        Suspend User
+                                    </button>
+                                    <button 
+                                        onClick={handleDelete}
+                                        className="dropdown-menu-item dropdown-menu-item-remove"
+                                    >
+                                        Remove User
+                                    </button>
+                                </>
+                            )}
+                        </div>
+                    )}
+                </div>
             </div>
             
             {message && <p className="form-message" style={{color: '#28a745'}}>{message}</p>}
             {error && <p className="login-error-message">{error}</p>}
             
+            {/* --- HEADER/AVATAR SECTION --- */}
             <div className="text-center mb-8" style={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '3rem'}}>
                 <img 
                     src={profile.photo || "/default-avatar.png"} 
@@ -228,10 +268,10 @@ const StudentProfile = () => {
             
             <section className="space-y-6">
                 
+                {/* --- COURSE ENROLLMENT SECTION --- */}
                 <div>
                     <h2>Course Enrollment Management</h2>
                     <p>Modify the courses this student is currently enrolled in.</p>
-                    
                     <div className="item-list" style={{maxHeight: '350px'}}>
                         {allCourses.length > 0 ? (
                             allCourses.map(course => {
@@ -267,6 +307,39 @@ const StudentProfile = () => {
                     </div>
                 </div>
 
+                {/* --- ACADEMIC PERFORMANCE (GRADES) SECTION --- */}
+                <div>
+                    <h2>Academic Performance</h2>
+                    <div className="item-list" style={{maxHeight: '330px'}}>
+                        {grades.length > 0 ? (
+                            grades.map(grade => {
+                                const { percentage, color } = getGradeDetails(grade);
+                                return (
+                                    <div key={grade._id} className="course-card">
+                                        <div className="course-card-info">
+                                            <h3>{grade.course.code} - {grade.course.title}</h3>
+                                            <p style={{color: '#a0a0b0', margin: '0.5rem 0 0 0'}}>
+                                                Assessment: <strong>{grade.assessmentTitle}</strong>
+                                            </p>
+                                        </div>
+                                        <div className="attendance-percentage-box">
+                                            <h2 style={{ color: color }}>
+                                                {percentage}%
+                                            </h2>
+                                            <p style={{color: '#e0e0e0', fontWeight: 'bold'}}>
+                                                {grade.marksObtained} / {grade.totalMarks}
+                                            </p>
+                                        </div>
+                                    </div>
+                                );
+                            })
+                        ) : (
+                            <p>No grades have been posted for this student yet.</p>
+                        )}
+                    </div>
+                </div>
+
+                {/* --- PERSONAL DETAILS SECTION --- */}
                 <div>
                     <h2>Personal Details</h2>
                     <p><strong>First Name:</strong> {profile.firstName}</p>
@@ -277,11 +350,15 @@ const StudentProfile = () => {
                     <p><strong>WhatsApp Number:</strong> {profile.isWhatsappSame ? profile.mobileNumber : (profile.whatsappNumber || 'Not set')}</p>
                 </div>
                 
+                {/* --- This section was removed to make space for the Grades --- */}
+                {/*
                 <div>
                     <h2>Academic Details</h2>
                     <p><strong>Marks:</strong> {profile.marks || 'Not set'}</p>
                 </div>
+                */}
 
+                {/* --- CERTIFICATES SECTION --- */}
                 <div>
                     <h2>Certificates</h2>
                     {profile.certificates && profile.certificates.length > 0 ? (

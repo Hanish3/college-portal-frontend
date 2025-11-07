@@ -1,10 +1,9 @@
+/* src/components/EditMyProfile.js */
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
-// import Navbar from './Navbar'; // <-- DELETED
 
 const EditMyProfile = () => {
-    // ... (your existing useState code is perfect) ...
     const [formData, setFormData] = useState({
         firstName: '',
         surname: '',
@@ -19,8 +18,12 @@ const EditMyProfile = () => {
     const [statusMessage, setStatusMessage] = useState('');
     const navigate = useNavigate();
 
+    // --- 1. ADD STATE FOR SUSPENSION/ERROR ---
+    const [error, setError] = useState('');
+    const [isSuspended, setIsSuspended] = useState(false);
+    const [suspensionMessage, setSuspensionMessage] = useState('');
+
     useEffect(() => {
-        // ... (your existing useEffect code is perfect) ...
         const fetchMyProfile = async () => {
             const token = localStorage.getItem('token');
             const config = {
@@ -40,8 +43,14 @@ const EditMyProfile = () => {
                 });
                 setLoading(false);
             } catch (err) {
-                console.error(err);
-                setStatusMessage('Error: Could not load profile data.');
+                // --- 2. ADD SUSPENSION CHECK ---
+                if (err.response && (err.response.status === 403 || err.response.status === 401)) {
+                    setIsSuspended(true);
+                    setSuspensionMessage(err.response.data.msg || 'Your account is suspended.');
+                } else {
+                    console.error(err);
+                    setError('Error: Could not load profile data.');
+                }
                 setLoading(false);
             }
         };
@@ -60,7 +69,6 @@ const EditMyProfile = () => {
     } = formData;
 
     const onChange = e => {
-        // ... (your existing onChange code is perfect) ...
         const { name, value, type, checked } = e.target;
         setFormData({ 
             ...formData, 
@@ -69,7 +77,6 @@ const EditMyProfile = () => {
     };
     
     const onSubmit = async e => {
-        // ... (your existing onSubmit code is perfect) ...
         e.preventDefault();
         const token = localStorage.getItem('token');
         const config = {
@@ -81,27 +88,54 @@ const EditMyProfile = () => {
         try {
             await axios.put('http://localhost:5000/api/students/me', formData, config);
             setStatusMessage('Profile updated successfully!');
-            setTimeout(() => navigate('/student-dashboard'), 2000);
+            setTimeout(() => navigate('/my-profile'), 2000); // <-- Navigate back to MyProfile
         } catch (err) {
-            console.error(err.response.data);
-            setStatusMessage('Error: ' + (err.response.data.msg || 'Server Error'));
+            // --- 3. ADD SUSPENSION CHECK ON SUBMIT ---
+            if (err.response && (err.response.status === 403 || err.response.status === 401)) {
+                setIsSuspended(true);
+                setSuspensionMessage(err.response.data.msg || 'Your account is suspended.');
+            } else {
+                console.error(err.response.data);
+                setError('Error: ' + (err.response.data.msg || 'Server Error'));
+            }
         }
     };
 
     if (loading) {
-        // REMOVED NAVBAR AND PARENT DIV
         return <div className="dashboard-container"><p>Loading your profile...</p></div>;
     }
 
+    // --- 4. ADD RENDER BLOCK FOR SUSPENSION ---
+    if (isSuspended) {
+        return (
+            <div className="dashboard-container">
+                <Link to="/student-dashboard" className="back-link">← Back to Dashboard</Link>
+                <h1>Edit My Profile</h1>
+                <div 
+                    className="login-error-message" 
+                    style={{
+                        textAlign: 'center', 
+                        padding: '2rem', 
+                        fontSize: '1.2rem'
+                    }}
+                >
+                    {suspensionMessage}
+                    <p style={{fontSize: '1rem', color: '#e0e0e0', marginTop: '1rem'}}>
+                        Please contact an administrator to resolve this issue.
+                    </p>
+                </div>
+            </div>
+        );
+    }
+    // --- END RENDER BLOCK ---
+
     return (
-        // REMOVED NAVBAR AND PARENT DIV
         <div className="dashboard-container">
-            <Link to="/student-dashboard" className="back-link">← Back to Dashboard</Link>
+            <Link to="/my-profile" className="back-link">← Back to My Profile</Link>
             <h1>Edit My Profile</h1>
             
             <form className="admin-form" onSubmit={onSubmit}>
                 <h2>Personal Details</h2>
-                {/* ... (all your form fields are perfect) ... */}
                 <div className="form-group">
                     <label>First Name</label>
                     <input type="text" name="firstName" value={firstName} onChange={onChange} />
@@ -139,7 +173,10 @@ const EditMyProfile = () => {
                 </div>
                 
                 <button type="submit" className="form-submit-button">Save Changes</button>
-                {statusMessage && <p className="form-message">{statusMessage}</p>}
+                
+                {/* Display either an error or a success message */}
+                {error && <p className="login-error-message" style={{marginTop: '1rem'}}>{error}</p>}
+                {statusMessage && <p className="form-message" style={{color: '#28a745', marginTop: '1rem'}}>{statusMessage}</p>}
             </form>
         </div>
     );

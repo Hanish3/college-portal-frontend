@@ -2,13 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode'; // <-- 1. IMPORT jwtDecode
+import { jwtDecode } from 'jwt-decode'; 
 
 const ManageEvents = () => {
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     
-    // --- 2. ADD STATE FOR DASHBOARD PATH ---
     const [dashboardPath, setDashboardPath] = useState('/student-dashboard');
 
     useEffect(() => {
@@ -16,7 +15,6 @@ const ManageEvents = () => {
             try {
                 const token = localStorage.getItem('token');
                 
-                // --- 3. SET THE CORRECT DASHBOARD PATH ---
                 if (token) {
                     const decoded = jwtDecode(token);
                     if (decoded.user.role === 'admin') {
@@ -42,13 +40,11 @@ const ManageEvents = () => {
     }, []);
 
     const formatDate = (dateString) => {
-        // ... (this function is unchanged) ...
         const options = { year: 'numeric', month: 'long', day: 'numeric' };
         return new Date(dateString).toLocaleDateString(undefined, options);
     };
 
     const handleDelete = async (eventId) => {
-        // ... (this function is unchanged) ...
          if (!window.confirm('Are you sure you want to permanently delete this event?')) {
             return;
         }
@@ -72,7 +68,6 @@ const ManageEvents = () => {
 
     return (
         <div className="dashboard-container">
-            {/* --- 4. USE THE DYNAMIC DASHBOARD PATH --- */}
             <Link to={dashboardPath} className="back-link">← Back to Dashboard</Link>
             
             <h1>Manage Events</h1>
@@ -93,12 +88,24 @@ const ManageEvents = () => {
                                 <p className="item-date">{formatDate(event.date)}</p>
                                 <p>{event.description}</p>
                             </div>
-                            <button 
-                                onClick={() => handleDelete(event._id)}
-                                className="delete-button"
-                            >
-                                Delete
-                            </button>
+                            
+                            {/* --- *** UPDATED BUTTON GROUP *** --- */}
+                            <div className="admin-button-group">
+                                <Link 
+                                    to={`/admin/edit-event/${event._id}`}
+                                    className="edit-button"
+                                >
+                                    Edit
+                                </Link>
+                                <button 
+                                    onClick={() => handleDelete(event._id)}
+                                    className="delete-button"
+                                >
+                                    Delete
+                                </button>
+                            </div>
+                            {/* --- *** END OF UPDATE *** --- */}
+
                         </div>
                     ))
                 ) : (

@@ -63,7 +63,6 @@ const Sidebar = () => {
                         <NavLink to="/curriculum" className="nav-link">Enroll in Courses</NavLink>
                         <NavLink to="/timetable" className="nav-link">Timetable</NavLink>
                         <NavLink to="/my-attendance" className="nav-link">My Attendance</NavLink>
-                        {/* --- NEW GRADES LINK --- */}
                         <NavLink to="/my-grades" className="nav-link">My Grades</NavLink>
                         <NavLink to="/my-profile" className="nav-link">My Profile</NavLink>
                     </>
@@ -75,7 +74,6 @@ const Sidebar = () => {
                         <NavLink to="/faculty-dashboard" className="nav-link">My Dashboard</NavLink>
                         <NavLink to="/admin-manage-users" className="nav-link">Manage Users</NavLink>
                         <NavLink to="/faculty-dashboard#attendance" className="nav-link">Take Attendance</NavLink>
-                        {/* --- NEW GRADEBOOK LINK --- */}
                         <NavLink to="/faculty/gradebook" className="nav-link">Gradebook</NavLink>
                         <NavLink to="/admin/survey-results" className="nav-link">Survey Results</NavLink>
                         <NavLink to="/admin-manage-events" className="nav-link">Manage Events</NavLink>
@@ -89,10 +87,9 @@ const Sidebar = () => {
                 {isAdmin && (
                     <>
                         <NavLink to="/admin-dashboard" className="nav-link">Admin Dashboard</NavLink>
-                        <NavLink to="/faculty-dashboard" className="nav-link">Faculty Dashboard</NavLink>
+                        {/* --- Faculty Dashboard link removed as requested --- */}
                         <NavLink to="/admin-manage-users" className="nav-link">Manage Users</NavLink>
                         <NavLink to="/curriculum" className="nav-link">Manage Courses</NavLink>
-                        {/* Note: Admin can access gradebook via Faculty Dashboard */}
                         <NavLink to="/admin/survey-results" className="nav-link">Survey Results</NavLink>
                         <NavLink to="/admin-manage-events" className="nav-link">Manage Events</NavLink>
                         <NavLink to="/admin-manage-notifications" className="nav-link">Manage Notifications</NavLink>

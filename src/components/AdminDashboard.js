@@ -19,7 +19,7 @@ const StatCard = ({ title, value, linkTo, color }) => {
 };
 
 const AdminDashboard = () => {
-    // --- (Search state is unchanged) ---
+    // --- 1. RE-ADD SEARCH STATE ---
     const [searchTerm, setSearchTerm] = useState('');
     const [students, setStudents] = useState([]);
     const [message, setMessage] = useState('Search for students by name.');
@@ -28,23 +28,22 @@ const AdminDashboard = () => {
     const [stats, setStats] = useState(null);
     const [loadingStats, setLoadingStats] = useState(true);
 
-    // --- NEW STATE FOR COURSE EXPORT ---
+    // --- (Course export state is unchanged) ---
     const [courses, setCourses] = useState([]);
     const [selectedCourse, setSelectedCourse] = useState('');
     const [isDownloading, setIsDownloading] = useState(false);
     const [downloadError, setDownloadError] = useState('');
 
-    // --- UPDATED useEffect to fetch STATS AND COURSES ---
+    // --- (useEffect is unchanged) ---
     useEffect(() => {
         const fetchDashboardData = async () => {
             try {
                 const token = localStorage.getItem('token');
                 const config = { headers: { 'x-auth-token': token } };
                 
-                // Fetch stats and courses in parallel
                 const [statsRes, coursesRes] = await Promise.all([
                     axios.get('http://localhost:5000/api/dashboard/admin-stats', config),
-                    axios.get('http://localhost:5000/api/courses', config) // Fetches all courses
+                    axios.get('http://localhost:5000/api/courses', config) 
                 ]);
                 
                 setStats(statsRes.data);
@@ -56,19 +55,50 @@ const AdminDashboard = () => {
             }
         };
         fetchDashboardData();
-    }, []); // Runs once on load
+    }, []); 
 
-    // --- (Search function is unchanged) ---
+    // --- 2. RE-ADD onSearch FUNCTION ---
     const onSearch = async (e) => {
-        // ... (same as before)
+        e.preventDefault();
+        setMessage('Searching...');
+        setStudents([]);
+        
+        if (!searchTerm.trim()) {
+            setMessage('Please enter a name to search.');
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('token');
+            const config = { headers: { 'x-auth-token': token } };
+            
+            const res = await axios.get(
+                `http://localhost:5000/api/students/search?name=${searchTerm}`,
+                config
+            );
+            
+            if (res.data.length === 0) {
+                setMessage(`No students found matching "${searchTerm}".`);
+            } else {
+                setStudents(res.data);
+                setMessage(`Found ${res.data.length} student(s).`);
+            }
+            
+        } catch (err) {
+            console.error(err.response?.data);
+            const errMsg = err.response?.data?.msg || 'Search failed. Please try again.';
+            setMessage(errMsg);
+            setStudents([]);
+        }
     };
     
     // --- (formatDate function is unchanged) ---
     const formatDate = (dateString) => {
-        // ... (same as before)
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return new Date(dateString).toLocaleDateString(undefined, options);
     };
 
-    // --- DOWNLOAD HANDLER FOR SPECIFIC COURSE ---
+    // --- (Download handlers are unchanged) ---
     const handleCourseDownload = async () => {
         if (!selectedCourse) {
             setDownloadError('Please select a course to export.');
@@ -86,9 +116,8 @@ const AdminDashboard = () => {
                 }
             );
             
-            // Get filename from the response header
             const contentDisposition = res.headers['content-disposition'];
-            let filename = 'course_report.xlsx'; // default
+            let filename = 'course_report.xlsx'; 
             if (contentDisposition) {
                 const filenameMatch = contentDisposition.match(/filename="(.+)"/);
                 if (filenameMatch.length === 2)
@@ -102,8 +131,6 @@ const AdminDashboard = () => {
         }
         setIsDownloading(false);
     };
-
-    // --- DOWNLOAD HANDLER FOR ALL STUDENTS (Master Report) ---
     const handleDownloadAll = async () => {
         setIsDownloading(true);
         setDownloadError('');
@@ -124,6 +151,17 @@ const AdminDashboard = () => {
         setIsDownloading(false);
     };
 
+    // --- (Helper function is unchanged) ---
+    const getMoodClass = (mood) => {
+        switch (mood) {
+            case 'Great': return 'mood-great';
+            case 'Good': return 'mood-good';
+            case 'Okay': return 'mood-okay';
+            case 'Stressed': return 'mood-stressed';
+            case 'Sad': return 'mood-sad';
+            default: return '';
+        }
+    };
 
     return (
         <div className="dashboard-container">
@@ -135,11 +173,14 @@ const AdminDashboard = () => {
                 <p>Loading stats...</p>
             ) : stats && (
                 <div className="stats-grid">
-                    {/* ... (StatCards are unchanged) ... */}
+                    <StatCard title="Pending Students" value={stats.pendingStudents} linkTo="/admin-manage-users" color="yellow" />
+                    <StatCard title="Pending Faculty" value={stats.pendingFaculty} linkTo="/admin-manage-users" color="yellow" />
+                    <StatCard title="Active Students" value={stats.activeStudents} color="green" />
+                    <StatCard title="Active Faculty" value={stats.activeFaculty} color="blue" />
                 </div>
             )}
             
-            {/* --- UPDATED EXPORT SECTION --- */}
+            {/* --- (Export section is unchanged) --- */}
             <div className="admin-actions" style={{
                 marginBottom: '2rem', 
                 flexDirection: 'column', 
@@ -147,7 +188,6 @@ const AdminDashboard = () => {
             }}>
                 <h2 className="section-title" style={{margin: 0, padding: 0}}>Admin Reports</h2>
                 
-                {/* Course-Specific Export */}
                 <div style={{width: '100%', marginTop: '1rem'}}>
                     <label>1. Download Report by Course</label>
                     <div style={{display: 'flex', gap: '1rem', width: '100%'}}>
@@ -174,7 +214,6 @@ const AdminDashboard = () => {
                     </div>
                 </div>
 
-                {/* Master Export */}
                 <div style={{width: '100%', marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.1)'}}>
                     <label>2. Download Master Report</label>
                     <button 
@@ -189,23 +228,70 @@ const AdminDashboard = () => {
 
                 {downloadError && <p className="login-error-message" style={{marginTop: '1rem'}}>{downloadError}</p>}
             </div>
-            {/* --- END OF UPDATED SECTION --- */}
 
 
-            {/* --- (Survey and Search sections are unchanged) --- */}
-            
+            {/* --- (Survey widget is unchanged) --- */}
             {stats && stats.recentSurveys.length > 0 && (
-                <div className="survey-results-widget">
-                    {/* ... (same as before) ... */}
-                </div>
+                <Link to="/admin/survey-results" className="stat-card-link" style={{ textDecoration: 'none' }}>
+                    <div className="survey-results-widget" style={{marginBottom: '2rem'}}>
+                        <h2 className="section-title" style={{textAlign: 'left', border: 'none', margin: '0 0 1rem 0'}}>
+                            Recent 'At-Risk' Surveys
+                        </h2>
+                        {stats.recentSurveys.map(survey => (
+                            <div key={survey._id} className="survey-result-card-widget">
+                                <span className={`survey-mood-badge ${getMoodClass(survey.mood)}`}>
+                                    {survey.mood}
+                                </span>
+                                <strong>{survey.student ? survey.student.name : 'Unknown'}</strong>
+                                <span className="item-date">{formatDate(survey.date)}</span>
+                            </div>
+                        ))}
+                    </div>
+                </Link>
             )}
-
+            
+            {/* --- 3. RE-ADD SEARCH SECTION --- */}
             <div className="search-container" style={{borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '2rem', marginTop: '2rem'}}>
-                {/* ... (same as before) ... */}
+                <h2>Search Student Profiles</h2>
+                <form onSubmit={onSearch}>
+                    <input
+                        type="text"
+                        placeholder="Search student name..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="search-input"
+                    />
+                    <button type="submit" className="search-button">Search</button>
+                </form>
             </div>
             <div className="results-container">
-                {/* ... (same as before) ... */}
+                {message && <p>{message}</p>}
+                {students.length > 0 && (
+                    <div className="item-list" style={{maxHeight: '300px', overflowY: 'auto'}}>
+                        {students.map((student) => (
+                            <Link to={`/student/${student.user}`} key={student._id} className="student-link">
+                                <div className="student-item course-card">
+                                    <img 
+                                        src={student.photo || "/default-avatar.png"} 
+                                        alt="avatar" 
+                                        className="profile-avatar"
+                                        style={{width: '50px', height: '50px', margin: 0}}
+                                        onError={(e) => { e.target.onerror = null; e.target.src="/default-avatar.png" }}
+                                    />
+                                    <div className="student-info course-card-info">
+                                        <h3 style={{margin: 0}}>{student.firstName} {student.surname}</h3>
+                                        <p style={{margin: '0.25rem 0 0 0', color: '#a0a0b0', fontSize: '0.9rem'}}>
+                                            Email: {student.email}
+                                        </p>
+                                    </div>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                )}
             </div>
+            {/* --- END OF RE-ADDED SECTION --- */}
+
         </div>
     );
 };
