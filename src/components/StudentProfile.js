@@ -1,4 +1,4 @@
-/* src/components/StudentProfile.js (FINAL FIX: Display Attendance %) */
+/* src/components/StudentProfile.js */
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, Link, useNavigate } from 'react-router-dom';
@@ -8,6 +8,7 @@ const StudentProfile = () => {
     const { userId } = useParams();
     const navigate = useNavigate();
     
+    // --- (State is unchanged) ---
     const [profile, setProfile] = useState(null);
     const [allCourses, setAllCourses] = useState([]); 
     const [loading, setLoading] = useState(true);
@@ -15,15 +16,13 @@ const StudentProfile = () => {
     const [message, setMessage] = useState('');
     const [isAdmin, setIsAdmin] = useState(false);
     
-    // Helper to determine the color of the percentage box
     const getPercentageColor = (percentage) => {
         if (percentage >= 75) return '#28a745';
         if (percentage >= 50) return '#f0ad4e';
         return '#d9534f';
     };
 
-
-    // --- Function to fetch all data ---
+    // --- (fetchProfileAndCourses is unchanged) ---
     const fetchProfileAndCourses = async () => {
         try {
             const token = localStorage.getItem('token');
@@ -40,10 +39,9 @@ const StudentProfile = () => {
 
             const config = { headers: { 'x-auth-token': token } };
             
-            // Fetch student profile (now includes overallAttendancePercentage) AND all courses
             const [profileRes, allCoursesRes] = await Promise.all([
                 axios.get(`http://localhost:5000/api/students/${userId}`, config),
-                axios.get('http://localhost:5000/api/courses', config) // Get all courses
+                axios.get('http://localhost:5000/api/courses', config)
             ]);
             
             setProfile(profileRes.data);
@@ -61,7 +59,7 @@ const StudentProfile = () => {
         fetchProfileAndCourses();
     }, [userId]);
     
-    // --- Enrollment Handlers (omitted for brevity) ---
+    // --- (handleEnrollmentChange is unchanged) ---
     const handleEnrollmentChange = async (courseId, action) => {
         const actionText = action === 'enroll' ? 'enrolling' : 'unenrolling';
         setMessage(`Processing ${actionText}...`);
@@ -80,7 +78,7 @@ const StudentProfile = () => {
             
             setProfile(prevProfile => ({
                 ...prevProfile,
-                courses: res.data // Replace the old courses list with the new one
+                courses: res.data
             }));
             
             setMessage(`Student successfully ${action === 'enroll' ? 'enrolled in' : 'unenrolled from'} the course.`);
@@ -91,21 +89,43 @@ const StudentProfile = () => {
         }
     };
     
-    // --- Existing Admin Handlers (Suspend, Delete) ---
+    // --- THIS IS THE UPDATED FUNCTION ---
     const handleSuspend = async () => {
-        if (!window.confirm(`Are you sure you want to SUSPEND ${profile.firstName}? They will be unable to log in.`)) return;
+        setError('');
+        setMessage('');
+
+        // 1. Get dates from the Admin
+        const startDate = prompt(`Suspension START date for ${profile.firstName}:\n(YYYY-MM-DD)`);
+        if (!startDate) return; // User cancelled
+
+        const endDate = prompt(`Suspension END date for ${profile.firstName}:\n(YYYY-MM-DD)`);
+        if (!endDate) return; // User cancelled
+
+        // 2. Validate the dates
+        if (new Date(endDate) <= new Date(startDate)) {
+            setError('End date must be after start date.');
+            return;
+        }
+
+        // 3. Send the dates to the API
         try {
             const token = localStorage.getItem('token');
             const config = { headers: { 'x-auth-token': token } };
-            await axios.put(`http://localhost:5000/api/users/suspend/${userId}`, null, config);
-            setMessage('User has been suspended. They must be reactivated from the "Manage Users" page.');
+            
+            // --- Send dates in the body ---
+            const body = { startDate, endDate };
+            await axios.put(`http://localhost:5000/api/users/suspend/${userId}`, body, config);
+
+            setMessage(`User has been suspended from ${startDate} to ${endDate}. They must be reactivated from the "Manage Users" page.`);
             setError('');
         } catch (err) {
             setError(err.response?.data?.msg || 'Failed to suspend user.');
             setMessage('');
         }
     };
+    // --- END OF UPDATE ---
 
+    // --- (handleDelete is unchanged) ---
     const handleDelete = async () => {
         if (!window.confirm(`Are you sure you want to PERMANENTLY DELETE ${profile.firstName}? This cannot be undone.`)) return;
         try {
@@ -113,14 +133,15 @@ const StudentProfile = () => {
             const config = { headers: { 'x-auth-token': token } };
             await axios.delete(`http://localhost:5000/api/users/${userId}`, config);
             alert('User has been permanently deleted.');
-            navigate('/admin-dashboard'); // Go back to dashboard after deletion
+            navigate('/admin-dashboard');
         } catch (err) {
             setError(err.response?.data?.msg || 'Failed to delete user.');
         }
     };
 
+    // --- (Render logic is unchanged) ---
     if (loading) {
-        return ( <div className="profile-container"> <p>Loading profile...</p> </div> );
+        return ( <div className="profile-container"> <p>Loading profile...</p> S</div> );
     }
 
     if (error) {
@@ -134,7 +155,6 @@ const StudentProfile = () => {
     const enrolledCourseIds = new Set(profile.courses.map(c => c._id));
     const backPath = isAdmin ? "/admin-dashboard" : "/faculty-dashboard";
     
-    // --- NEW: Extract and format percentage ---
     const percentage = profile.overallAttendancePercentage !== undefined 
                        ? profile.overallAttendancePercentage.toFixed(1)
                        : 'N/A';
@@ -147,7 +167,6 @@ const StudentProfile = () => {
                     ← Back to Dashboard
                 </Link>
                 
-                {/* --- Admin & Faculty Buttons --- */}
                 <Link 
                     to={`/admin/mark-attendance/${userId}`} 
                     className="action-button" 
@@ -162,7 +181,6 @@ const StudentProfile = () => {
                     Edit Profile
                 </Link>
 
-                {/* --- ADMIN-ONLY BUTTONS --- */}
                 {isAdmin && (
                     <>
                         <button 
@@ -184,6 +202,7 @@ const StudentProfile = () => {
             </div>
             
             {message && <p className="form-message" style={{color: '#28a745'}}>{message}</p>}
+            {error && <p className="login-error-message">{error}</p>}
             
             <div className="text-center mb-8" style={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '3rem'}}>
                 <img 
@@ -194,7 +213,6 @@ const StudentProfile = () => {
                 />
                 <div style={{textAlign: 'left'}}>
                     <h1>{profile.firstName} {profile.surname}</h1>
-                    {/* --- NEW: ATTENDANCE PERCENTAGE BOX --- */}
                     <div className="attendance-percentage-box" style={{borderLeft: 'none', paddingLeft: 0, marginTop: '1rem', textAlign: 'left'}}>
                         <h2 style={{ 
                             color: getPercentageColor(profile.overallAttendancePercentage),
@@ -205,7 +223,6 @@ const StudentProfile = () => {
                         </h2>
                         <p style={{marginTop: '-10px', color: '#ccc', fontWeight: 'bold'}}>Overall Attendance</p>
                     </div>
-                    {/* --- END NEW --- */}
                 </div>
             </div>
             
@@ -249,8 +266,6 @@ const StudentProfile = () => {
                         )}
                     </div>
                 </div>
-
-                {/* --- EXISTING SECTIONS BELOW --- */}
 
                 <div>
                     <h2>Personal Details</h2>

@@ -26,8 +26,12 @@ const ManageUsers = () => {
     // --- UPDATED: State for all lists ---
     const [pendingStudents, setPendingStudents] = useState([]);
     const [pendingFaculty, setPendingFaculty] = useState([]);
-    const [pendingAdmins, setPendingAdmins] = useState([]); // <-- NEW LIST
-    const [activeUsers, setActiveUsers] = useState([]);
+    const [pendingAdmins, setPendingAdmins] = useState([]);
+    
+    // --- NEW: Active users split into two lists ---
+    const [activeStudents, setActiveStudents] = useState([]);
+    const [activeFaculty, setActiveFaculty] = useState([]);
+    
     const [suspendedUsers, setSuspendedUsers] = useState([]);
     
     const [loading, setLoading] = useState(true);
@@ -53,13 +57,17 @@ const ManageUsers = () => {
                 if (userIsAdmin) {
                     const [facultyRes, adminRes, activeRes, suspendedRes] = await Promise.all([
                         axios.get('http://localhost:5000/api/users/pending/faculty', config),
-                        axios.get('http://localhost:5000/api/users/pending/admins', config), // <-- Fetch pending admins
+                        axios.get('http://localhost:5000/api/users/pending/admins', config),
                         axios.get('http://localhost:5000/api/users/active', config),
                         axios.get('http://localhost:5000/api/users/suspended', config)
                     ]);
                     setPendingFaculty(facultyRes.data);
-                    setPendingAdmins(adminRes.data); // <-- Set pending admins
-                    setActiveUsers(activeRes.data);
+                    setPendingAdmins(adminRes.data);
+                    
+                    // --- NEW: Filter the active list ---
+                    setActiveStudents(activeRes.data.filter(u => u.role === 'student'));
+                    setActiveFaculty(activeRes.data.filter(u => u.role === 'faculty'));
+
                     setSuspendedUsers(suspendedRes.data);
                 }
                 
@@ -84,16 +92,16 @@ const ManageUsers = () => {
             // Remove from correct pending list
             if (user.role === 'student') {
                 setPendingStudents(pendingStudents.filter(u => u._id !== user._id));
+                // --- NEW: Add to active students list ---
+                setActiveStudents([user, ...activeStudents]);
             } else if (user.role === 'faculty') {
                 setPendingFaculty(pendingFaculty.filter(u => u._id !== user._id));
+                // --- NEW: Add to active faculty list ---
+                setActiveFaculty([user, ...activeFaculty]);
             } else if (user.role === 'admin') {
                 setPendingAdmins(pendingAdmins.filter(u => u._id !== user._id));
             }
             
-            // Admins don't show up in the 'active' list, so only add if not admin
-            if (user.role !== 'admin') {
-                setActiveUsers([user, ...activeUsers]);
-            }
             setMessage(`User ${user.name} has been approved.`);
         } catch (err) { setError(err.response?.data?.msg || 'Failed to approve user.'); }
     };
@@ -118,36 +126,68 @@ const ManageUsers = () => {
 
     // --- (Admin-only actions are unchanged) ---
     const handleSuspend = async (user) => {
-        // ... (code is correct)
-        if (!window.confirm(`Are you sure you want to SUSPEND ${user.name}? They will be unable to log in.`)) return;
+        setError('');
+        setMessage('');
+        const startDate = prompt(`Suspension START date for ${user.name}:\n(YYYY-MM-DD)`);
+        if (!startDate) return; 
+        const endDate = prompt(`Suspension END date for ${user.name}:\n(YYYY-MM-DD)`);
+        if (!endDate) return; 
+
+        if (new Date(endDate) <= new Date(startDate)) {
+            setError('End date must be after start date.');
+            return;
+        }
+
         try {
             const token = localStorage.getItem('token');
             const config = { headers: { 'x-auth-token': token } };
-            await axios.put(`http://localhost:5000/api/users/suspend/${user._id}`, null, config);
-            setActiveUsers(activeUsers.filter(u => u._id !== user._id));
+            const body = { startDate, endDate };
+            await axios.put(`http://localhost:5000/api/users/suspend/${user._id}`, body, config);
+            
+            // --- NEW: Remove from correct active list ---
+            if (user.role === 'student') {
+                setActiveStudents(activeStudents.filter(u => u._id !== user._id));
+            } else if (user.role === 'faculty') {
+                setActiveFaculty(activeFaculty.filter(u => u._id !== user._id));
+            }
+
             setSuspendedUsers([user, ...suspendedUsers]);
-            setMessage(`User ${user.name} has been suspended.`);
-        } catch (err) { setError('Failed to suspend user.'); }
+            setMessage(`User ${user.name} has been suspended from ${startDate} to ${endDate}.`);
+        } catch (err) { setError(err.response?.data?.msg || 'Failed to suspend user.'); }
     };
+
     const handleReactivate = async (user) => {
-        // ... (code is correct)
         try {
             const token = localStorage.getItem('token');
             const config = { headers: { 'x-auth-token': token } };
             await axios.put(`http://localhost:5000/api/users/reactivate/${user._id}`, null, config);
             setSuspendedUsers(suspendedUsers.filter(u => u._id !== user._id));
-            setActiveUsers([user, ...activeUsers]);
+            
+            // --- NEW: Add to correct active list ---
+            if (user.role === 'student') {
+                setActiveStudents([user, ...activeStudents]);
+            } else if (user.role === 'faculty') {
+                setActiveFaculty([user, ...activeFaculty]);
+            }
+
             setMessage(`User ${user.name} has been reactivated.`);
         } catch (err) { setError('Failed to reactivate user.'); }
     };
+    
     const handleDelete = async (user) => {
-        // ... (code is correct)
         if (!window.confirm(`Are you sure you want to PERMANENTLY DELETE ${user.name}? This cannot be undone.`)) return;
         try {
             const token = localStorage.getItem('token');
             const config = { headers: { 'x-auth-token': token } };
             await axios.delete(`http://localhost:5000/api/users/${user._id}`, config);
-            setActiveUsers(activeUsers.filter(u => u._id !== user._id));
+
+            // --- NEW: Remove from correct active list ---
+            if (user.role === 'student') {
+                setActiveStudents(activeStudents.filter(u => u._id !== user._id));
+            } else if (user.role === 'faculty') {
+                setActiveFaculty(activeFaculty.filter(u => u._id !== user._id));
+            }
+
             setSuspendedUsers(suspendedUsers.filter(u => u._id !== user._id));
             setMessage(`User ${user.name} has been permanently deleted.`);
         } catch (err) { setError('Failed to delete user.'); }
@@ -232,12 +272,12 @@ const ManageUsers = () => {
                         )}
                     </div>
 
-                    {/* --- SECTION 4: ACTIVE USERS (Admin-Only) --- */}
-                    <h2 style={{marginTop: '2rem'}}>Active Users</h2>
-                    <p>Suspend or permanently remove active students and faculty.</p>
+                    {/* --- SECTION 4: ACTIVE STUDENTS (Admin-Only) --- */}
+                    <h2 style={{marginTop: '2rem'}}>Active Students</h2>
+                    <p>Suspend or permanently remove active students.</p>
                     <div className="item-list" style={{maxHeight: '300px'}}>
-                        {activeUsers.length > 0 ? (
-                            activeUsers.map(user => (
+                        {activeStudents.length > 0 ? (
+                            activeStudents.map(user => (
                                 <UserCard user={user} key={user._id}>
                                     <button onClick={() => handleSuspend(user)} className="leave-button">
                                         Suspend
@@ -248,11 +288,31 @@ const ManageUsers = () => {
                                 </UserCard>
                             ))
                         ) : (
-                            <p>No active users found.</p>
+                            <p>No active students found.</p>
+                        )}
+                    </div>
+                    
+                    {/* --- NEW SECTION 5: ACTIVE FACULTY (Admin-Only) --- */}
+                    <h2 style={{marginTop: '2rem'}}>Active Faculty</h2>
+                    <p>Suspend or permanently remove active faculty.</p>
+                    <div className="item-list" style={{maxHeight: '300px'}}>
+                        {activeFaculty.length > 0 ? (
+                            activeFaculty.map(user => (
+                                <UserCard user={user} key={user._id}>
+                                    <button onClick={() => handleSuspend(user)} className="leave-button">
+                                        Suspend
+                                    </button>
+                                    <button onClick={() => handleDelete(user)} className="delete-button">
+                                        Remove
+                                    </button>
+                                </UserCard>
+                            ))
+                        ) : (
+                            <p>No active faculty found.</p>
                         )}
                     </div>
 
-                    {/* --- SECTION 5: SUSPENDED USERS (Admin-Only) --- */}
+                    {/* --- SECTION 6: SUSPENDED USERS (Admin-Only) --- */}
                     <h2 style={{marginTop: '2rem'}}>Suspended Users</h2>
                     <p>Re-activate or permanently remove suspended users.</p>
                     <div className="item-list" style={{maxHeight: '300px'}}>

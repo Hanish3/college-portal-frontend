@@ -1,12 +1,17 @@
 /* src/components/StudentDashboard.js */
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-// --- NO LONGER IMPORTING STUDENTSURVEY ---
+import { jwtDecode } from 'jwt-decode'; // <-- 1. IMPORT jwtDecode
 
 const StudentDashboard = () => {
     const [events, setEvents] = useState([]);
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
+    
+    // --- 2. NEW STATE FOR SUSPENSION ---
+    const [isSuspended, setIsSuspended] = useState(false);
+    const [suspensionMessage, setSuspensionMessage] = useState('');
+    const [userName, setUserName] = useState('Student');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -16,18 +21,39 @@ const StudentDashboard = () => {
                     setLoading(false);
                     return;
                 }
+                
+                // Set the user's name from the token
+                try {
+                    const decoded = jwtDecode(token);
+                    // We need a user model/profile to get the name, 
+                    // but for this dashboard, we can just use a placeholder
+                } catch (e) { console.error("Error decoding token:", e); }
+
+
                 const config = {
                     headers: { 'x-auth-token': token },
                 };
+                
+                // --- 3. THIS WILL NOW BE BLOCKED BY THE MIDDLEWARE IF SUSPENDED ---
                 const [eventsRes, notificationsRes] = await Promise.all([
                     axios.get('http://localhost:5000/api/events', config),
                     axios.get('http://localhost:5000/api/notifications', config)
                 ]);
+                
                 setEvents(eventsRes.data);
                 setNotifications(notificationsRes.data);
                 setLoading(false);
             } catch (err) {
                 console.error('Error fetching dashboard data:', err);
+                
+                // --- 4. THIS IS THE CRITICAL CHANGE ---
+                // Check if the error is the 403 (Forbidden) from our new middleware
+                if (err.response && (err.response.status === 403 || err.response.status === 401)) {
+                    setIsSuspended(true);
+                    setSuspensionMessage(err.response.data.msg || 'Your account is suspended.');
+                }
+                // --- END CHANGE ---
+                
                 setLoading(false);
             }
         };
@@ -42,6 +68,29 @@ const StudentDashboard = () => {
     if (loading) {
         return <div className="dashboard-container"><p>Loading dashboard...</p></div>;
     }
+
+    // --- 5. RENDER THE SUSPENSION MESSAGE ---
+    if (isSuspended) {
+        return (
+            <div className="dashboard-container">
+                <h1>Welcome, {userName}!</h1>
+                <div 
+                    className="login-error-message" 
+                    style={{
+                        textAlign: 'center', 
+                        padding: '2rem', 
+                        fontSize: '1.2rem'
+                    }}
+                >
+                    {suspensionMessage}
+                    <p style={{fontSize: '1rem', color: '#e0e0e0', marginTop: '1rem'}}>
+                        Please contact an administrator to resolve this issue.
+                    </p>
+                </div>
+            </div>
+        );
+    }
+    // --- END RENDER ---
 
     return (
         <div className="dashboard-container">

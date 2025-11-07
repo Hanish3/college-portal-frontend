@@ -415,15 +415,14 @@ button:hover {
 }
 .profile-actions {
     display: flex;
-    /* justify-content: space-between; <-- This was a good default */
-    justify-content: flex-start; /* Let's align buttons to the left */
+    justify-content: flex-start; /* This aligns all buttons to the left */
     gap: 1rem; /* Add space between buttons */
     align-items: center;
     margin-bottom: 1.5rem;
 }
 /* Make the back-link look less like a button */
 .back-link {
-    margin-right: auto; /* Pushes all other buttons to the right */
+    /* margin-right: auto; <-- THIS LINE IS NOW REMOVED/COMMENTED OUT */
 }
 
 
@@ -1167,4 +1166,45 @@ button:hover {
 .survey-result-card-widget .item-date {
     color: #a0a0b0;
     font-size: 0.9rem;
+}
+
+/* --- NEW Styles for Curriculum Roster --- */
+
+/* This new wrapper makes the roster expand "under" the card */
+.course-card-column {
+    display: flex;
+    flex-direction: column;
+    /* Remove gap/margin from item-list and put it here */
+    margin-bottom: 1rem; 
+}
+
+/* We need to remove the margin-bottom from the .course-card now */
+.item-list .course-card {
+    margin-bottom: 0;
+}
+
+.roster-details {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: none; /* Connects to the card above */
+    padding: 1rem 1.5rem;
+    border-radius: 0 0 8px 8px;
+}
+
+.roster-details h4 {
+    margin: 0 0 1rem 0;
+    color: #6e8efb;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0.5rem;
+}
+
+.roster-details ul {
+    list-style-type: decimal;
+    margin: 0;
+    padding-left: 1.5rem;
+    color: #e0e0e0;
+}
+
+.roster-details li {
+    margin-bottom: 0.5rem;
 }
