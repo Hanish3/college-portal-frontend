@@ -1,10 +1,12 @@
 /* src/components/FacultyGradebook.js (NEW FILE) */
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Link, useNavigate } from 'react-router-dom'; // <-- THIS LINE IS NOW FIXED
+// --- THIS IS THE FIX: 'useNavigate' is removed ---
+import { Link } from 'react-router-dom'; 
 
 const FacultyGradebook = () => {
-    const navigate = useNavigate();
+    // --- THIS IS THE FIX: This line is deleted ---
+    // const navigate = useNavigate();
 
     // --- State for Data ---
     const [myCourses, setMyCourses] = useState([]);

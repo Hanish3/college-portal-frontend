@@ -21,7 +21,7 @@ const FacultyDashboard = () => {
                 const token = localStorage.getItem('token');
                 const config = { headers: { 'x-auth-token': token } };
                 
-                // NOTE: This will be empty if no courses are assigned (as seen in your screenshot)
+                // NOTE: This will be empty if no courses are assigned
                 const res = await axios.get('https://niat-amet-college-portal-api.onrender.com/api/courses/my-courses', config);
                 
                 setMyCourses(res.data);
@@ -111,7 +111,6 @@ const FacultyDashboard = () => {
                     <div className="item-list" style={{maxHeight: '300px', overflowY: 'auto'}}>
                         {students.map((student) => (
                             <Link to={`/student/${student.user}`} key={student._id} className="student-link">
-                                {/* *** THIS IS THE UPDATED SECTION *** */}
                                 <div className="student-item course-card">
                                     <img 
                                         src={student.photo} 
@@ -130,7 +129,6 @@ const FacultyDashboard = () => {
                                         </p>
                                     </div>
                                 </div>
-                                {/* *** END OF UPDATE *** */}
                             </Link>
                         ))}
                     </div>
@@ -140,15 +138,21 @@ const FacultyDashboard = () => {
 
 
             {/* --- SECTION 2: MY COURSES (Original) --- */}
-            <a id="attendance"></a> {/* Anchor for sidebar link */}
-            <h2 style={{marginTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '2rem'}}>
+            
+            {/* --- THIS IS THE FIX --- */}
+            {/* The <a id="attendance"></a> tag was removed */}
+            {/* The id="attendance" is now on the h2 tag */}
+            <h2 
+                id="attendance"
+                style={{marginTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '2rem'}}
+            >
                 My Assigned Courses
             </h2>
+            {/* --- END OF FIX --- */}
+
             <p>Here are the courses you are assigned to for this semester.</p>
 
-            {/* ERROR MOVED TO TOP OF PAGE
             {error && <p className="login-error-message">{error}</p>}
-            */}
 
             <div className="course-list">
                 {myCourses.length > 0 ? (

@@ -1,17 +1,18 @@
 /* src/components/StudentDashboard.js */
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { jwtDecode } from 'jwt-decode'; // <-- 1. IMPORT jwtDecode
+import { jwtDecode } from 'jwt-decode'; // <-- IMPORT jwtDecode
 
 const StudentDashboard = () => {
     const [events, setEvents] = useState([]);
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
     
-    // --- 2. NEW STATE FOR SUSPENSION ---
+    // --- NEW STATE FOR SUSPENSION ---
     const [isSuspended, setIsSuspended] = useState(false);
     const [suspensionMessage, setSuspensionMessage] = useState('');
-    const [userName, setUserName] = useState('Student');
+    // --- THIS IS THE FIX: 'setUserName' is removed ---
+    const [userName] = useState('Student');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -24,7 +25,8 @@ const StudentDashboard = () => {
                 
                 // Set the user's name from the token
                 try {
-                    const decoded = jwtDecode(token);
+                    // --- THIS IS THE FIX: 'decoded' is removed ---
+                    jwtDecode(token);
                     // We need a user model/profile to get the name, 
                     // but for this dashboard, we can just use a placeholder
                 } catch (e) { console.error("Error decoding token:", e); }
@@ -34,7 +36,7 @@ const StudentDashboard = () => {
                     headers: { 'x-auth-token': token },
                 };
                 
-                // --- 3. THIS WILL NOW BE BLOCKED BY THE MIDDLEWARE IF SUSPENDED ---
+                // --- THIS WILL NOW BE BLOCKED BY THE MIDDLEWARE IF SUSPENDED ---
                 const [eventsRes, notificationsRes] = await Promise.all([
                     axios.get('https://niat-amet-college-portal-api.onrender.com/api/events', config),
                     axios.get('https://niat-amet-college-portal-api.onrender.com/api/notifications', config)
@@ -46,7 +48,7 @@ const StudentDashboard = () => {
             } catch (err) {
                 console.error('Error fetching dashboard data:', err);
                 
-                // --- 4. THIS IS THE CRITICAL CHANGE ---
+                // --- THIS IS THE CRITICAL CHANGE ---
                 // Check if the error is the 403 (Forbidden) from our new middleware
                 if (err.response && (err.response.status === 403 || err.response.status === 401)) {
                     setIsSuspended(true);
@@ -69,7 +71,7 @@ const StudentDashboard = () => {
         return <div className="dashboard-container"><p>Loading dashboard...</p></div>;
     }
 
-    // --- 5. RENDER THE SUSPENSION MESSAGE ---
+    // --- RENDER THE SUSPENSION MESSAGE ---
     if (isSuspended) {
         return (
             <div className="dashboard-container">

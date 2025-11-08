@@ -1,11 +1,18 @@
 /* src/components/Sidebar.js (UPDATED with Gradebook Links) */
-import React, { useState, useEffect } from 'react';
+// --- THIS IS THE FIX: Import 'useCallback' ---
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link, NavLink } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 
 const Sidebar = () => {
     const navigate = useNavigate();
     const [userRole, setUserRole] = useState(null);
+
+    // --- THIS IS THE FIX: Wrap 'handleLogout' in useCallback ---
+    const handleLogout = useCallback(() => {
+        localStorage.removeItem('token');
+        navigate('/login');
+    }, [navigate]);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -26,12 +33,8 @@ const Sidebar = () => {
         } else {
             handleLogout();
         }
-    }, []); 
-
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        navigate('/login');
-    };
+    // --- THIS IS THE FIX: Add 'handleLogout' to the dependency array ---
+    }, [handleLogout]); 
 
     const isStudent = userRole === 'student';
     const isFaculty = userRole ==='faculty';
@@ -63,10 +66,7 @@ const Sidebar = () => {
                         <NavLink to="/curriculum" className="nav-link">Enroll in Courses</NavLink>
                         <NavLink to="/timetable" className="nav-link">Timetable</NavLink>
                         <NavLink to="/my-attendance" className="nav-link">My Attendance</NavLink>
-                        
-                        {/* --- ADD THE NEW LINK HERE --- */}
                         <NavLink to="/mark-my-attendance" className="nav-link">Mark My Attendance</NavLink>
-                        
                         <NavLink to="/my-grades" className="nav-link">My Grades</NavLink>
                         <NavLink to="/my-profile" className="nav-link">My Profile</NavLink>
                     </>
@@ -91,7 +91,6 @@ const Sidebar = () => {
                 {isAdmin && (
                     <>
                         <NavLink to="/admin-dashboard" className="nav-link">Admin Dashboard</NavLink>
-                        {/* --- Faculty Dashboard link removed as requested --- */}
                         <NavLink to="/admin-manage-users" className="nav-link">Manage Users</NavLink>
                         <NavLink to="/curriculum" className="nav-link">Manage Courses</NavLink>
                         <NavLink to="/admin/survey-results" className="nav-link">Survey Results</NavLink>

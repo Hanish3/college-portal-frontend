@@ -1,5 +1,6 @@
 /* src/components/StudentProfile.js */
-import React, { useState, useEffect, useRef } from 'react';
+// --- THIS IS THE FIX: Import 'useCallback' ---
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
@@ -23,6 +24,7 @@ const StudentProfile = () => {
     const [menuOpen, setMenuOpen] = useState(false);
     const menuRef = useRef(null); 
 
+    // --- (Helper functions are unchanged) ---
     const getPercentageColor = (percentage) => {
         if (percentage >= 75) return '#28a745';
         if (percentage >= 50) return '#f0ad4e';
@@ -42,7 +44,8 @@ const StudentProfile = () => {
         return { percentage: percentage.toFixed(1), color };
     };
 
-    const fetchProfileData = async () => {
+    // --- THIS IS THE FIX: Wrap 'fetchProfileData' in useCallback ---
+    const fetchProfileData = useCallback(async () => {
         try {
             const token = localStorage.getItem('token');
             if (!token) {
@@ -74,11 +77,13 @@ const StudentProfile = () => {
             setError(`Error: ${errMsg}`);
             setLoading(false);
         }
-    };
+    }, [userId]); // <-- Add 'userId' as a dependency for useCallback
     
     useEffect(() => {
+        // --- THIS IS THE FIX: Call the useCallback-wrapped function ---
         fetchProfileData();
-    }, [userId]);
+    // --- THIS IS THE FIX: Add 'fetchProfileData' to the dependency array ---
+    }, [fetchProfileData]); 
     
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -93,27 +98,36 @@ const StudentProfile = () => {
     }, [menuRef]);
     
     
-    // --- (Action Handlers are unchanged) ---
+    // --- (All Action Handlers are unchanged) ---
     const handleEnrollmentChange = async (courseId, action) => {
         const actionText = action === 'enroll' ? 'enrolling' : 'unenrolling';
         setMessage(`Processing ${actionText}...`);
         setError('');
+
         try {
             const token = localStorage.getItem('token');
             const config = { headers: { 'x-auth-token': token } };
+            
             let res;
             if (action === 'enroll') {
                 res = await axios.put(`https://niat-amet-college-portal-api.onrender.com/api/students/manage-enroll/${userId}/${courseId}`, {}, config);
             } else {
                 res = await axios.put(`https://niat-amet-college-portal-api.onrender.com/api/students/manage-unenroll/${userId}/${courseId}`, {}, config);
             }
-            setProfile(prevProfile => ({ ...prevProfile, courses: res.data }));
+            
+            setProfile(prevProfile => ({
+                ...prevProfile,
+                courses: res.data
+            }));
+            
             setMessage(`Student successfully ${action === 'enroll' ? 'enrolled in' : 'unenrolled from'} the course.`);
+
         } catch (err) {
             setError(err.response?.data?.msg || `Failed to ${actionText} student.`);
             setMessage('');
         }
     };
+    
     const handleSuspend = async () => {
         setError('');
         setMessage('');
@@ -121,10 +135,12 @@ const StudentProfile = () => {
         if (!startDate) return; 
         const endDate = prompt(`Suspension END date for ${profile.firstName}:\n(YYYY-MM-DD)`);
         if (!endDate) return; 
+
         if (new Date(endDate) <= new Date(startDate)) {
             setError('End date must be after start date.');
             return;
         }
+
         try {
             const token = localStorage.getItem('token');
             const config = { headers: { 'x-auth-token': token } };
@@ -132,12 +148,13 @@ const StudentProfile = () => {
             await axios.put(`https://niat-amet-college-portal-api.onrender.com/api/users/suspend/${userId}`, body, config);
             setMessage(`User has been suspended from ${startDate} to ${endDate}. They must be reactivated from the "Manage Users" page.`);
             setError('');
-            setMenuOpen(false);
+            setMenuOpen(false); // Close menu on action
         } catch (err) {
             setError(err.response?.data?.msg || 'Failed to suspend user.');
             setMessage('');
         }
     };
+
     const handleDelete = async () => {
         if (!window.confirm(`Are you sure you want to PERMANENTLY DELETE ${profile.firstName}? This cannot be undone.`)) return;
         try {
@@ -150,9 +167,8 @@ const StudentProfile = () => {
             setError(err.response?.data?.msg || 'Failed to delete user.');
         }
     };
-    // --- (End Handlers) ---
 
-
+    // --- (All loading/error logic is unchanged) ---
     if (loading) {
         return ( <div className="profile-container"> <p>Loading profile...</p></div> );
     }
@@ -173,7 +189,7 @@ const StudentProfile = () => {
     return (
         <div className="dashboard-container">
             
-            {/* --- THIS "Back to Dashboard" LINK IS CORRECT FOR THE VIEW PAGE --- */}
+            {/* --- (3-DOT MENU SECTION is unchanged) --- */}
             <div className="profile-actions">
                 <Link to={backPath} className="back-link">
                     ← Back to Dashboard
@@ -226,7 +242,7 @@ const StudentProfile = () => {
             {message && <p className="form-message" style={{color: '#28a745'}}>{message}</p>}
             {error && <p className="login-error-message">{error}</p>}
             
-            {/* --- (Header/Avatar Section is unchanged) --- */}
+            {/* --- HEADER/AVATAR SECTION --- */}
             <div className="text-center mb-8" style={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '3rem'}}>
                 
                 <img 
@@ -256,7 +272,9 @@ const StudentProfile = () => {
             
             <section className="space-y-6">
                 
-                {/* --- (Course Enrollment Section is unchanged) --- */}
+                {/* --- (Rest of the page is unchanged) --- */}
+                
+                {/* --- COURSE ENROLLMENT SECTION --- */}
                 <div>
                     <h2>Course Enrollment Management</h2>
                     <p>Modify the courses this student is currently enrolled in.</p>
@@ -295,7 +313,7 @@ const StudentProfile = () => {
                     </div>
                 </div>
 
-                {/* --- (Academic Performance Section is unchanged) --- */}
+                {/* --- ACADEMIC PERFORMANCE (GRADES) SECTION --- */}
                 <div>
                     <h2>Academic Performance</h2>
                     <div className="item-list" style={{maxHeight: '330px'}}>
@@ -327,7 +345,7 @@ const StudentProfile = () => {
                     </div>
                 </div>
 
-                {/* --- (Personal Details Section is unchanged) --- */}
+                {/* --- PERSONAL DETAILS SECTION --- */}
                 <div>
                     <h2>Personal Details</h2>
                     <p><strong>First Name:</strong> {profile.firstName}</p>
@@ -338,7 +356,7 @@ const StudentProfile = () => {
                     <p><strong>WhatsApp Number:</strong> {profile.isWhatsappSame ? profile.mobileNumber : (profile.whatsappNumber || 'Not set')}</p>
                 </div>
                 
-                {/* --- (Certificates Section is unchanged) --- */}
+                {/* --- CERTIFICATES SECTION --- */}
                 <div>
                     <h2>Certificates</h2>
                     {profile.certificates && profile.certificates.length > 0 ? (
