@@ -27,7 +27,7 @@ const ManageEvents = () => {
                 const config = {
                     headers: { 'x-auth-token': token },
                 };
-                const res = await axios.get('http://localhost:5000/api/events', config);
+                const res = await axios.get('https://niat-amet-college-portal-api.onrender.com/api/events', config);
                 const sortedEvents = res.data.sort((a, b) => new Date(b.date) - new Date(a.date));
                 setEvents(sortedEvents);
                 setLoading(false);
@@ -53,7 +53,7 @@ const ManageEvents = () => {
             const config = {
                 headers: { 'x-auth-token': token },
             };
-            await axios.delete(`http://localhost:5000/api/events/${eventId}`, config);
+            await axios.delete(`https://niat-amet-college-portal-api.onrender.com/api/events/${eventId}`, config);
             setEvents(events.filter(event => event._id !== eventId));
             alert('Event deleted successfully.');
         } catch (err) {

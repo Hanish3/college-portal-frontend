@@ -20,7 +20,7 @@ const MyAttendance = () => {
                     headers: { 'x-auth-token': token },
                 };
                 
-                const res = await axios.get('http://localhost:5000/api/attendance/me/courses', config);
+                const res = await axios.get('https://niat-amet-college-portal-api.onrender.com/api/attendance/me/courses', config);
                 
                 setCourses(res.data);
                 setLoading(false);

@@ -24,14 +24,14 @@ const MySurvey = () => {
                 const config = { headers: { 'x-auth-token': token } };
 
                 // First, check if they already submitted
-                const checkRes = await axios.get('http://localhost:5000/api/survey/check-today', config);
+                const checkRes = await axios.get('https://niat-amet-college-portal-api.onrender.com/api/survey/check-today', config);
                 
                 if (checkRes.data.submitted) {
                     setSubmittedToday(true);
                     setLoading(false);
                 } else {
                     // If not submitted, fetch the random questions
-                    const questionsRes = await axios.get('http://localhost:5000/api/survey-questions/random', config);
+                    const questionsRes = await axios.get('https://niat-amet-college-portal-api.onrender.com/api/survey-questions/random', config);
                     setQuestions(questionsRes.data);
                     setLoading(false);
                 }
@@ -90,7 +90,7 @@ const MySurvey = () => {
                 comments: comments
             });
             
-            await axios.post('http://localhost:5000/api/survey', body, config);
+            await axios.post('https://niat-amet-college-portal-api.onrender.com/api/survey', body, config);
             setSubmittedToday(true); // Hide the form on success
         } catch (err) {
             // Check for suspension *again* on submit, just in case

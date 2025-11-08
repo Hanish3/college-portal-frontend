@@ -33,7 +33,7 @@ const CreateUser = () => {
 
         try {
             // We use the 'api/auth/register' route we discussed
-            await axios.post('http://localhost:5000/api/auth/register', body, config);
+            await axios.post('https://niat-amet-college-portal-api.onrender.com/api/auth/register', body, config);
             
             setStatusMessage(`User '${name}' created successfully as a ${role}!`);
             setFormData({ name: '', email: '', password: '', role: 'student' }); // Reset form

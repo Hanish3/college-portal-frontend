@@ -48,7 +48,7 @@ const MarkAttendance = () => {
                 }
                 
                 // Fetch the student profile, which now includes their courses
-                const res = await axios.get(`http://localhost:5000/api/students/${userId}`, config);
+                const res = await axios.get(`https://niat-amet-college-portal-api.onrender.com/api/students/${userId}`, config);
                 
                 const profile = res.data;
                 setStudentName(`${profile.firstName} ${profile.surname}`);
@@ -93,7 +93,7 @@ const MarkAttendance = () => {
             const config = { headers: { 'Content-Type': 'application/json', 'x-auth-token': token } };
             
             // This still uses the single-student 'POST /api/attendance' route
-            await axios.post('http://localhost:5000/api/attendance', formData, config);
+            await axios.post('https://niat-amet-college-portal-api.onrender.com/api/attendance', formData, config);
             
             setSuccess(`Attendance marked for ${studentName} as ${status} on ${date}!`);
             

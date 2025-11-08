@@ -22,7 +22,7 @@ const FacultyDashboard = () => {
                 const config = { headers: { 'x-auth-token': token } };
                 
                 // NOTE: This will be empty if no courses are assigned (as seen in your screenshot)
-                const res = await axios.get('http://localhost:5000/api/courses/my-courses', config);
+                const res = await axios.get('https://niat-amet-college-portal-api.onrender.com/api/courses/my-courses', config);
                 
                 setMyCourses(res.data);
                 setLoading(false);
@@ -60,7 +60,7 @@ const FacultyDashboard = () => {
             
             // This route should only return basic student profiles
             const res = await axios.get(
-                `http://localhost:5000/api/students/search?name=${searchTerm}`,
+                `https://niat-amet-college-portal-api.onrender.com/api/students/search?name=${searchTerm}`,
                 config
             );
             

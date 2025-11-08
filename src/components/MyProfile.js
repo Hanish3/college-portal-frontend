@@ -25,7 +25,7 @@ const MyProfile = () => {
                     headers: { 'x-auth-token': token },
                 };
                 
-                const res = await axios.get(`http://localhost:5000/api/students/me`, config);
+                const res = await axios.get(`https://niat-amet-college-portal-api.onrender.com/api/students/me`, config);
                 setProfile(res.data);
                 setLoading(false);
             } catch (err) {

@@ -22,7 +22,7 @@ const EditEvent = () => {
                 const config = { headers: { 'x-auth-token': token } };
                 
                 // Use the new GET /api/events/:id route
-                const res = await axios.get(`http://localhost:5000/api/events/${eventId}`, config);
+                const res = await axios.get(`https://niat-amet-college-portal-api.onrender.com/api/events/${eventId}`, config);
 
                 // Format the date for the HTML date input
                 const formattedDate = res.data.date ? new Date(res.data.date).toISOString().split('T')[0] : '';
@@ -61,7 +61,7 @@ const EditEvent = () => {
         
         try {
             // Use the new PUT /api/events/:id route
-            await axios.put(`http://localhost:5000/api/events/${eventId}`, formData, config);
+            await axios.put(`https://niat-amet-college-portal-api.onrender.com/api/events/${eventId}`, formData, config);
             
             setStatusMessage('Event updated successfully!');
             setTimeout(() => navigate('/admin-manage-events'), 2000); // Go back to the list

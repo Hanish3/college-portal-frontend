@@ -31,8 +31,8 @@ const EditCourse = () => {
                 
                 // Fetch both sets of data in parallel
                 const [courseRes, facultyRes] = await Promise.all([
-                    axios.get(`http://localhost:5000/api/courses/${courseId}`, config),
-                    axios.get('http://localhost:5000/api/users/faculty', config)
+                    axios.get(`https://niat-amet-college-portal-api.onrender.com/api/courses/${courseId}`, config),
+                    axios.get('https://niat-amet-college-portal-api.onrender.com/api/users/faculty', config)
                 ]);
 
                 // Set the faculty list for the dropdown
@@ -80,7 +80,7 @@ const EditCourse = () => {
         try {
             // Use the PUT route to update
             // The 'formData' object now correctly includes the 'faculty' ID
-            await axios.put(`http://localhost:5000/api/courses/${courseId}`, formData, config);
+            await axios.put(`https://niat-amet-college-portal-api.onrender.com/api/courses/${courseId}`, formData, config);
             
             setStatusMessage('Course updated successfully!');
             setTimeout(() => navigate('/curriculum'), 2000); // Go back to the list

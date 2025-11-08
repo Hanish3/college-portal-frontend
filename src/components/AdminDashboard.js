@@ -38,8 +38,8 @@ const AdminDashboard = () => {
                 const config = { headers: { 'x-auth-token': token } };
                 
                 const [statsRes, coursesRes] = await Promise.all([
-                    axios.get('http://localhost:5000/api/dashboard/admin-stats', config),
-                    axios.get('http://localhost:5000/api/courses', config) 
+                    axios.get('https://niat-amet-college-portal-api.onrender.com/api/dashboard/admin-stats', config),
+                    axios.get('https://niat-amet-college-portal-api.onrender.com/api/courses', config) 
                 ]);
                 
                 setStats(statsRes.data);
@@ -69,7 +69,7 @@ const AdminDashboard = () => {
             const config = { headers: { 'x-auth-token': token } };
             
             const res = await axios.get(
-                `http://localhost:5000/api/students/search?name=${searchTerm}`,
+                `https://niat-amet-college-portal-api.onrender.com/api/students/search?name=${searchTerm}`,
                 config
             );
             
@@ -105,7 +105,7 @@ const AdminDashboard = () => {
         try {
             const token = localStorage.getItem('token');
             const res = await axios.get(
-                `http://localhost:5000/api/students/export/${selectedCourse}`,
+                `https://niat-amet-college-portal-api.onrender.com/api/students/export/${selectedCourse}`,
                 {
                     headers: { 'x-auth-token': token },
                     responseType: 'blob' 
@@ -133,7 +133,7 @@ const AdminDashboard = () => {
         try {
             const token = localStorage.getItem('token');
             const res = await axios.get(
-                'http://localhost:5000/api/students/export/all',
+                'https://niat-amet-college-portal-api.onrender.com/api/students/export/all',
                 {
                     headers: { 'x-auth-token': token },
                     responseType: 'blob'

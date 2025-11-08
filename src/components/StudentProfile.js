@@ -59,9 +59,9 @@ const StudentProfile = () => {
             const config = { headers: { 'x-auth-token': token } };
             
             const [profileRes, allCoursesRes, gradesRes] = await Promise.all([
-                axios.get(`http://localhost:5000/api/students/${userId}`, config),
-                axios.get('http://localhost:5000/api/courses', config),
-                axios.get(`http://localhost:5000/api/grades/student/${userId}`, config)
+                axios.get(`https://niat-amet-college-portal-api.onrender.com/api/students/${userId}`, config),
+                axios.get('https://niat-amet-college-portal-api.onrender.com/api/courses', config),
+                axios.get(`https://niat-amet-college-portal-api.onrender.com/api/grades/student/${userId}`, config)
             ]);
             
             setProfile(profileRes.data);
@@ -103,9 +103,9 @@ const StudentProfile = () => {
             const config = { headers: { 'x-auth-token': token } };
             let res;
             if (action === 'enroll') {
-                res = await axios.put(`http://localhost:5000/api/students/manage-enroll/${userId}/${courseId}`, {}, config);
+                res = await axios.put(`https://niat-amet-college-portal-api.onrender.com/api/students/manage-enroll/${userId}/${courseId}`, {}, config);
             } else {
-                res = await axios.put(`http://localhost:5000/api/students/manage-unenroll/${userId}/${courseId}`, {}, config);
+                res = await axios.put(`https://niat-amet-college-portal-api.onrender.com/api/students/manage-unenroll/${userId}/${courseId}`, {}, config);
             }
             setProfile(prevProfile => ({ ...prevProfile, courses: res.data }));
             setMessage(`Student successfully ${action === 'enroll' ? 'enrolled in' : 'unenrolled from'} the course.`);
@@ -129,7 +129,7 @@ const StudentProfile = () => {
             const token = localStorage.getItem('token');
             const config = { headers: { 'x-auth-token': token } };
             const body = { startDate, endDate };
-            await axios.put(`http://localhost:5000/api/users/suspend/${userId}`, body, config);
+            await axios.put(`https://niat-amet-college-portal-api.onrender.com/api/users/suspend/${userId}`, body, config);
             setMessage(`User has been suspended from ${startDate} to ${endDate}. They must be reactivated from the "Manage Users" page.`);
             setError('');
             setMenuOpen(false);
@@ -143,7 +143,7 @@ const StudentProfile = () => {
         try {
             const token = localStorage.getItem('token');
             const config = { headers: { 'x-auth-token': token } };
-            await axios.delete(`http://localhost:5000/api/users/${userId}`, config);
+            await axios.delete(`https://niat-amet-college-portal-api.onrender.com/api/users/${userId}`, config);
             alert('User has been permanently deleted.');
             navigate('/admin-dashboard');
         } catch (err) {

@@ -20,7 +20,7 @@ const StudentMarkAttendance = () => {
                 
                 // This route already exists and is used by the Curriculum page
                 // Note: We should probably use 'api/students/me/courses' for accuracy
-                const res = await axios.get('http://localhost:5000/api/students/me/courses', config);
+                const res = await axios.get('https://niat-amet-college-portal-api.onrender.com/api/students/me/courses', config);
                 
                 setMyCourses(res.data);
                 if (res.data.length > 0) {
@@ -63,7 +63,7 @@ const StudentMarkAttendance = () => {
             const body = JSON.stringify({ courseId: selectedCourse });
 
             // Call our new backend route
-            const res = await axios.post('http://localhost:5000/api/attendance/me', body, config);
+            const res = await axios.post('https://niat-amet-college-portal-api.onrender.com/api/attendance/me', body, config);
             
             setMessage(res.data.msg || 'Attendance marked successfully!');
 

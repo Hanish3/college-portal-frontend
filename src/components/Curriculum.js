@@ -35,11 +35,11 @@ const Curriculum = () => {
                 }
             }
             
-            const allCoursesRes = await axios.get('http://localhost:5000/api/courses', config);
+            const allCoursesRes = await axios.get('https://niat-amet-college-portal-api.onrender.com/api/courses', config);
             setAllCourses(allCoursesRes.data);
             
             if (role === 'student') {
-                const myCoursesRes = await axios.get('http://localhost:5000/api/students/me/courses', config);
+                const myCoursesRes = await axios.get('https://niat-amet-college-portal-api.onrender.com/api/students/me/courses', config);
                 const enrolledIds = new Set(myCoursesRes.data.map(course => course._id));
                 setMyCourseIds(enrolledIds);
             }
@@ -74,7 +74,7 @@ const Curriculum = () => {
         try {
             const token = localStorage.getItem('token');
             const config = { headers: { 'x-auth-token': token } };
-            const res = await axios.get(`http://localhost:5000/api/students/by-course/${course._id}`, config);
+            const res = await axios.get(`https://niat-amet-college-portal-api.onrender.com/api/students/by-course/${course._id}`, config);
             setRosterData(res.data);
             setRosterLoading(false);
         } catch (err) {
@@ -87,7 +87,7 @@ const Curriculum = () => {
             const token = localStorage.getItem('token');
             const config = { headers: { 'x-auth-token': token } };
             const body = { courseId };
-            await axios.put('http://localhost:5000/api/students/me/enroll', body, config);
+            await axios.put('https://niat-amet-college-portal-api.onrender.com/api/students/me/enroll', body, config);
             setMyCourseIds(prevIds => new Set(prevIds).add(courseId));
         } catch (err) { 
             // Also check for suspension on action
@@ -104,7 +104,7 @@ const Curriculum = () => {
             const token = localStorage.getItem('token');
             const config = { headers: { 'x-auth-token': token } };
             const body = { courseId };
-            await axios.put('http://localhost:5000/api/students/me/unenroll', body, config);
+            await axios.put('https://niat-amet-college-portal-api.onrender.com/api/students/me/unenroll', body, config);
             setMyCourseIds(prevIds => {
                 const newIds = new Set(prevIds);
                 newIds.delete(courseId);
@@ -125,7 +125,7 @@ const Curriculum = () => {
         try {
             const token = localStorage.getItem('token');
             const config = { headers: { 'x-auth-token': token } };
-            await axios.delete(`http://localhost:5000/api/courses/${courseId}`, config);
+            await axios.delete(`https://niat-amet-college-portal-api.onrender.com/api/courses/${courseId}`, config);
             setAllCourses(allCourses.filter(course => course._id !== courseId));
             alert('Course deleted successfully.');
         } catch (err) {

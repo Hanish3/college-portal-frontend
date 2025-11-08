@@ -30,7 +30,7 @@ const CreateNotification = () => {
         const body = JSON.stringify({ title, message, recipient });
 
         try {
-            await axios.post('http://localhost:5000/api/notifications', body, config);
+            await axios.post('https://niat-amet-college-portal-api.onrender.com/api/notifications', body, config);
             
             setStatusMessage('Notification sent successfully!');
             setFormData({ title: '', message: '', recipient: 'all' });

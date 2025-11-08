@@ -25,7 +25,7 @@ const MyGrades = () => {
                 const config = { headers: { 'x-auth-token': token } };
                 
                 // Call our new 'me' route for grades
-                const res = await axios.get('http://localhost:5000/api/grades/me', config);
+                const res = await axios.get('https://niat-amet-college-portal-api.onrender.com/api/grades/me', config);
                 
                 setMyGrades(res.data);
                 setLoading(false);

@@ -26,8 +26,8 @@ const TakeAttendance = () => {
 
                 // Fetch course details and student list in parallel
                 const [courseRes, studentsRes] = await Promise.all([
-                    axios.get(`http://localhost:5000/api/courses/${courseId}`, config),
-                    axios.get(`http://localhost:5000/api/students/by-course/${courseId}`, config)
+                    axios.get(`https://niat-amet-college-portal-api.onrender.com/api/courses/${courseId}`, config),
+                    axios.get(`https://niat-amet-college-portal-api.onrender.com/api/students/by-course/${courseId}`, config)
                 ]);
 
                 setCourse(courseRes.data);
@@ -89,7 +89,7 @@ const TakeAttendance = () => {
             const config = { headers: { 'Content-Type': 'application/json', 'x-auth-token': token } };
             
             // Call our new batch route
-            const res = await axios.post('http://localhost:5000/api/attendance/batch', body, config);
+            const res = await axios.post('https://niat-amet-college-portal-api.onrender.com/api/attendance/batch', body, config);
             
             setMessage(res.data.msg || 'Attendance submitted successfully!');
             setTimeout(() => navigate('/faculty-dashboard'), 2000);

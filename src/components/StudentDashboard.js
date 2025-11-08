@@ -36,8 +36,8 @@ const StudentDashboard = () => {
                 
                 // --- 3. THIS WILL NOW BE BLOCKED BY THE MIDDLEWARE IF SUSPENDED ---
                 const [eventsRes, notificationsRes] = await Promise.all([
-                    axios.get('http://localhost:5000/api/events', config),
-                    axios.get('http://localhost:5000/api/notifications', config)
+                    axios.get('https://niat-amet-college-portal-api.onrender.com/api/events', config),
+                    axios.get('https://niat-amet-college-portal-api.onrender.com/api/notifications', config)
                 ]);
                 
                 setEvents(eventsRes.data);

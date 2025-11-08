@@ -24,7 +24,7 @@ const FacultyGradebook = () => {
             try {
                 const token = localStorage.getItem('token');
                 const config = { headers: { 'x-auth-token': token } };
-                const res = await axios.get('http://localhost:5000/api/courses/my-courses', config);
+                const res = await axios.get('https://niat-amet-college-portal-api.onrender.com/api/courses/my-courses', config);
                 setMyCourses(res.data);
                 setLoadingCourses(false);
             } catch (err) {
@@ -54,7 +54,7 @@ const FacultyGradebook = () => {
             const config = { headers: { 'x-auth-token': token } };
             
             // Call our new API route
-            const res = await axios.get(`http://localhost:5000/api/grades/course/${courseId}`, config);
+            const res = await axios.get(`https://niat-amet-college-portal-api.onrender.com/api/grades/course/${courseId}`, config);
             
             setGradebookData(res.data);
             
@@ -105,7 +105,7 @@ const FacultyGradebook = () => {
             const config = { headers: { 'Content-Type': 'application/json', 'x-auth-token': token } };
             
             // Call our new batch route
-            const res = await axios.post('http://localhost:5000/api/grades/batch', body, config);
+            const res = await axios.post('https://niat-amet-college-portal-api.onrender.com/api/grades/batch', body, config);
             
             setMessage(res.data.msg || 'Grades saved successfully!');
             setTimeout(() => setMessage(''), 3000); // Clear message after 3s

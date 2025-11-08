@@ -50,16 +50,16 @@ const ManageUsers = () => {
                 setIsAdmin(userIsAdmin);
                 
                 // EVERYONE (Admin+Faculty) gets pending students
-                const studentRes = await axios.get('http://localhost:5000/api/users/pending/students', config);
+                const studentRes = await axios.get('https://niat-amet-college-portal-api.onrender.com/api/users/pending/students', config);
                 setPendingStudents(studentRes.data);
 
                 // ONLY ADMINS get the other lists
                 if (userIsAdmin) {
                     const [facultyRes, adminRes, activeRes, suspendedRes] = await Promise.all([
-                        axios.get('http://localhost:5000/api/users/pending/faculty', config),
-                        axios.get('http://localhost:5000/api/users/pending/admins', config),
-                        axios.get('http://localhost:5000/api/users/active', config),
-                        axios.get('http://localhost:5000/api/users/suspended', config)
+                        axios.get('https://niat-amet-college-portal-api.onrender.com/api/users/pending/faculty', config),
+                        axios.get('https://niat-amet-college-portal-api.onrender.com/api/users/pending/admins', config),
+                        axios.get('https://niat-amet-college-portal-api.onrender.com/api/users/active', config),
+                        axios.get('https://niat-amet-college-portal-api.onrender.com/api/users/suspended', config)
                     ]);
                     setPendingFaculty(facultyRes.data);
                     setPendingAdmins(adminRes.data);
@@ -87,7 +87,7 @@ const ManageUsers = () => {
         try {
             const token = localStorage.getItem('token');
             const config = { headers: { 'x-auth-token': token } };
-            await axios.put(`http://localhost:5000/api/users/approve/${user._id}`, null, config);
+            await axios.put(`https://niat-amet-college-portal-api.onrender.com/api/users/approve/${user._id}`, null, config);
             
             // Remove from correct pending list
             if (user.role === 'student') {
@@ -111,7 +111,7 @@ const ManageUsers = () => {
         try {
             const token = localStorage.getItem('token');
             const config = { headers: { 'x-auth-token': token } };
-            await axios.delete(`http://localhost:5000/api/users/reject/${user._id}`, config);
+            await axios.delete(`https://niat-amet-college-portal-api.onrender.com/api/users/reject/${user._id}`, config);
             
             if (user.role === 'student') {
                 setPendingStudents(pendingStudents.filter(u => u._id !== user._id));
@@ -142,7 +142,7 @@ const ManageUsers = () => {
             const token = localStorage.getItem('token');
             const config = { headers: { 'x-auth-token': token } };
             const body = { startDate, endDate };
-            await axios.put(`http://localhost:5000/api/users/suspend/${user._id}`, body, config);
+            await axios.put(`https://niat-amet-college-portal-api.onrender.com/api/users/suspend/${user._id}`, body, config);
             
             // --- NEW: Remove from correct active list ---
             if (user.role === 'student') {
@@ -160,7 +160,7 @@ const ManageUsers = () => {
         try {
             const token = localStorage.getItem('token');
             const config = { headers: { 'x-auth-token': token } };
-            await axios.put(`http://localhost:5000/api/users/reactivate/${user._id}`, null, config);
+            await axios.put(`https://niat-amet-college-portal-api.onrender.com/api/users/reactivate/${user._id}`, null, config);
             setSuspendedUsers(suspendedUsers.filter(u => u._id !== user._id));
             
             // --- NEW: Add to correct active list ---
@@ -179,7 +179,7 @@ const ManageUsers = () => {
         try {
             const token = localStorage.getItem('token');
             const config = { headers: { 'x-auth-token': token } };
-            await axios.delete(`http://localhost:5000/api/users/${user._id}`, config);
+            await axios.delete(`https://niat-amet-college-portal-api.onrender.com/api/users/${user._id}`, config);
 
             // --- NEW: Remove from correct active list ---
             if (user.role === 'student') {

@@ -26,7 +26,7 @@ const ViewSurveyResults = () => {
                 }
 
                 // Fetch survey results
-                const res = await axios.get('http://localhost:5000/api/survey/results', config);
+                const res = await axios.get('https://niat-amet-college-portal-api.onrender.com/api/survey/results', config);
                 setResults(res.data);
                 setLoading(false);
             } catch (err) {

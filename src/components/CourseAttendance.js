@@ -24,7 +24,7 @@ const CourseAttendance = () => {
                 const token = localStorage.getItem('token');
                 const config = { headers: { 'x-auth-token': token } };
                 
-                const res = await axios.get(`http://localhost:5000/api/attendance/me/stats/${courseId}`, config);
+                const res = await axios.get(`https://niat-amet-college-portal-api.onrender.com/api/attendance/me/stats/${courseId}`, config);
                 
                 setMonthlyStats(res.data);
                 if (res.data.length > 0) {
@@ -56,7 +56,7 @@ const CourseAttendance = () => {
             const token = localStorage.getItem('token');
             const config = { headers: { 'x-auth-token': token } };
 
-            const res = await axios.get(`http://localhost:5000/api/attendance/me/daily/${courseId}/${year}/${month}`, config);
+            const res = await axios.get(`https://niat-amet-college-portal-api.onrender.com/api/attendance/me/daily/${courseId}/${year}/${month}`, config);
             
             setDailyRecords(res.data);
         } catch (err) {

@@ -31,7 +31,7 @@ const EditStudentProfile = () => {
                 headers: { 'x-auth-token': token },
             };
             try {
-                const res = await axios.get(`http://localhost:5000/api/students/${userId}`, config);
+                const res = await axios.get(`https://niat-amet-college-portal-api.onrender.com/api/students/${userId}`, config);
                 setFormData({
                     firstName: res.data.firstName || '',
                     surname: res.data.surname || '',
@@ -81,7 +81,7 @@ const EditStudentProfile = () => {
 
         try {
             const token = localStorage.getItem('token');
-            const sigRes = await axios.get('http://localhost:5000/api/upload/signature', {
+            const sigRes = await axios.get('https://niat-amet-college-portal-api.onrender.com/api/upload/signature', {
                 headers: { 'x-auth-token': token }
             });
 
@@ -122,7 +122,7 @@ const EditStudentProfile = () => {
             },
         };
         try {
-            await axios.put(`http://localhost:5000/api/students/${userId}`, formData, config);
+            await axios.put(`https://niat-amet-college-portal-api.onrender.com/api/students/${userId}`, formData, config);
             setStatusMessage('Profile updated successfully!');
             setTimeout(() => navigate(`/student/${userId}`), 2000);
         } catch (err) {

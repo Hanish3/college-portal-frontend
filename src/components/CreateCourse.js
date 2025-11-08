@@ -28,7 +28,7 @@ const CreateCourse = () => {
                 const config = { headers: { 'x-auth-token': token } };
                 
                 // Call our new API route
-                const res = await axios.get('http://localhost:5000/api/users/faculty', config);
+                const res = await axios.get('https://niat-amet-college-portal-api.onrender.com/api/users/faculty', config);
                 setFacultyList(res.data);
             } catch (err) {
                 console.error("Error fetching faculty:", err);
@@ -57,7 +57,7 @@ const CreateCourse = () => {
         const body = JSON.stringify({ code, title, description, syllabusUrl, timetableUrl, faculty });
         
         try {
-            await axios.post('http://localhost:5000/api/courses', body, config);
+            await axios.post('https://niat-amet-college-portal-api.onrender.com/api/courses', body, config);
             setStatusMessage('Course created successfully!');
             // --- UPDATED: Reset all fields ---
             setFormData({ 

@@ -29,7 +29,7 @@ const ManageNotifications = () => {
                 const config = {
                     headers: { 'x-auth-token': token },
                 };
-                const res = await axios.get('http://localhost:5000/api/notifications', config);
+                const res = await axios.get('https://niat-amet-college-portal-api.onrender.com/api/notifications', config);
                 setNotifications(res.data);
                 setLoading(false);
             } catch (err) {
@@ -56,7 +56,7 @@ const ManageNotifications = () => {
             const config = {
                 headers: { 'x-auth-token': token },
             };
-            await axios.delete(`http://localhost:5000/api/notifications/${notificationId}`, config);
+            await axios.delete(`https://niat-amet-college-portal-api.onrender.com/api/notifications/${notificationId}`, config);
             setNotifications(notifications.filter(notif => notif._id !== notificationId));
             alert('Notification deleted successfully.');
         } catch (err) {

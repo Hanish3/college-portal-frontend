@@ -30,7 +30,7 @@ const CreateEvent = () => {
         const body = JSON.stringify({ title, description, date });
 
         try {
-            await axios.post('http://localhost:5000/api/events', body, config);
+            await axios.post('https://niat-amet-college-portal-api.onrender.com/api/events', body, config);
             
             setMessage('Event created successfully!');
             setFormData({ title: '', description: '', date: '' });

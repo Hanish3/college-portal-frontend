@@ -23,7 +23,7 @@ const Timetable = () => {
                 };
 
                 // Just fetch all courses
-                const res = await axios.get('http://localhost:5000/api/courses', config);
+                const res = await axios.get('https://niat-amet-college-portal-api.onrender.com/api/courses', config);
                 setCourses(res.data);
                 setLoading(false);
 

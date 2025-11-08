@@ -40,7 +40,7 @@ const Register = () => {
             };
 
             const res = await axios.post(
-                'http://localhost:5000/api/auth/register',
+                'https://niat-amet-college-portal-api.onrender.com/api/auth/register',
                 body,
                 config
             );
