@@ -63,6 +63,10 @@ const Sidebar = () => {
                         <NavLink to="/curriculum" className="nav-link">Enroll in Courses</NavLink>
                         <NavLink to="/timetable" className="nav-link">Timetable</NavLink>
                         <NavLink to="/my-attendance" className="nav-link">My Attendance</NavLink>
+                        
+                        {/* --- ADD THE NEW LINK HERE --- */}
+                        <NavLink to="/mark-my-attendance" className="nav-link">Mark My Attendance</NavLink>
+                        
                         <NavLink to="/my-grades" className="nav-link">My Grades</NavLink>
                         <NavLink to="/my-profile" className="nav-link">My Profile</NavLink>
                     </>

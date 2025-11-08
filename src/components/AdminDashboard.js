@@ -19,16 +19,12 @@ const StatCard = ({ title, value, linkTo, color }) => {
 };
 
 const AdminDashboard = () => {
-    // --- 1. RE-ADD SEARCH STATE ---
+    // --- (All state is unchanged) ---
     const [searchTerm, setSearchTerm] = useState('');
     const [students, setStudents] = useState([]);
     const [message, setMessage] = useState('Search for students by name.');
-
-    // --- (Stats state is unchanged) ---
     const [stats, setStats] = useState(null);
     const [loadingStats, setLoadingStats] = useState(true);
-
-    // --- (Course export state is unchanged) ---
     const [courses, setCourses] = useState([]);
     const [selectedCourse, setSelectedCourse] = useState('');
     const [isDownloading, setIsDownloading] = useState(false);
@@ -57,7 +53,7 @@ const AdminDashboard = () => {
         fetchDashboardData();
     }, []); 
 
-    // --- 2. RE-ADD onSearch FUNCTION ---
+    // --- (onSearch function is unchanged) ---
     const onSearch = async (e) => {
         e.preventDefault();
         setMessage('Searching...');
@@ -167,7 +163,7 @@ const AdminDashboard = () => {
         <div className="dashboard-container">
             <h1>Welcome, Admin!</h1>
 
-            {/* --- STATS SECTION (unchanged) --- */}
+            {/* --- (Stats, Export, and Survey sections are unchanged) --- */}
             <h2 className="section-title">At a Glance</h2>
             {loadingStats ? (
                 <p>Loading stats...</p>
@@ -180,7 +176,6 @@ const AdminDashboard = () => {
                 </div>
             )}
             
-            {/* --- (Export section is unchanged) --- */}
             <div className="admin-actions" style={{
                 marginBottom: '2rem', 
                 flexDirection: 'column', 
@@ -229,8 +224,6 @@ const AdminDashboard = () => {
                 {downloadError && <p className="login-error-message" style={{marginTop: '1rem'}}>{downloadError}</p>}
             </div>
 
-
-            {/* --- (Survey widget is unchanged) --- */}
             {stats && stats.recentSurveys.length > 0 && (
                 <Link to="/admin/survey-results" className="stat-card-link" style={{ textDecoration: 'none' }}>
                     <div className="survey-results-widget" style={{marginBottom: '2rem'}}>
@@ -250,7 +243,7 @@ const AdminDashboard = () => {
                 </Link>
             )}
             
-            {/* --- 3. RE-ADD SEARCH SECTION --- */}
+            {/* --- SEARCH SECTION --- */}
             <div className="search-container" style={{borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '2rem', marginTop: '2rem'}}>
                 <h2>Search Student Profiles</h2>
                 <form onSubmit={onSearch}>
@@ -270,13 +263,17 @@ const AdminDashboard = () => {
                     <div className="item-list" style={{maxHeight: '300px', overflowY: 'auto'}}>
                         {students.map((student) => (
                             <Link to={`/student/${student.user}`} key={student._id} className="student-link">
+                                {/* *** THIS IS THE UPDATED SECTION *** */}
                                 <div className="student-item course-card">
                                     <img 
-                                        src={student.photo || "/default-avatar.png"} 
+                                        src={student.photo}
                                         alt="avatar" 
                                         className="profile-avatar"
                                         style={{width: '50px', height: '50px', margin: 0}}
-                                        onError={(e) => { e.target.onerror = null; e.target.src="/default-avatar.png" }}
+                                        onError={(e) => { 
+                                            e.target.onerror = null; 
+                                            e.target.src="https://res.cloudinary.com/dbsovavaw/image/upload/v1762574486/08350cafa4fabb8a6a1be2d9f18f2d88_kqvnyw.jpg" 
+                                        }}
                                     />
                                     <div className="student-info course-card-info">
                                         <h3 style={{margin: 0}}>{student.firstName} {student.surname}</h3>
@@ -285,13 +282,12 @@ const AdminDashboard = () => {
                                         </p>
                                     </div>
                                 </div>
+                                {/* *** END OF UPDATE *** */}
                             </Link>
                         ))}
                     </div>
                 )}
             </div>
-            {/* --- END OF RE-ADDED SECTION --- */}
-
         </div>
     );
 };

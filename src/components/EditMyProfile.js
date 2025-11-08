@@ -14,11 +14,16 @@ const EditMyProfile = () => {
         photo: '',
         familyIncome: '',
     });
+    
+    // --- State for Uploading ---
+    const [uploading, setUploading] = useState(false);
+    const [uploadError, setUploadError] = useState('');
+
     const [loading, setLoading] = useState(true);
     const [statusMessage, setStatusMessage] = useState('');
     const navigate = useNavigate();
 
-    // --- 1. ADD STATE FOR SUSPENSION/ERROR ---
+    // --- State for Suspension/Error ---
     const [error, setError] = useState('');
     const [isSuspended, setIsSuspended] = useState(false);
     const [suspensionMessage, setSuspensionMessage] = useState('');
@@ -43,7 +48,7 @@ const EditMyProfile = () => {
                 });
                 setLoading(false);
             } catch (err) {
-                // --- 2. ADD SUSPENSION CHECK ---
+                // --- Suspension Check ---
                 if (err.response && (err.response.status === 403 || err.response.status === 401)) {
                     setIsSuspended(true);
                     setSuspensionMessage(err.response.data.msg || 'Your account is suspended.');
@@ -75,7 +80,48 @@ const EditMyProfile = () => {
             [name]: type === 'checkbox' ? checked : value 
         });
     };
+
+    // --- (Upload handler is unchanged) ---
+    const handleImageUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setUploading(true);
+        setUploadError('');
+
+        try {
+            const token = localStorage.getItem('token');
+            const sigRes = await axios.get('http://localhost:5000/api/upload/signature', {
+                headers: { 'x-auth-token': token }
+            });
+
+            const { signature, timestamp, apiKey, cloudName } = sigRes.data;
+            
+            const uploadFormData = new FormData();
+            uploadFormData.append('file', file);
+            uploadFormData.append('timestamp', timestamp);
+            uploadFormData.append('signature', signature);
+            uploadFormData.append('api_key', apiKey);
+            uploadFormData.append('folder', 'student_profiles');
+
+            const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+            const uploadRes = await axios.post(cloudinaryUrl, uploadFormData);
+
+            setFormData({
+                ...formData,
+                photo: uploadRes.data.secure_url
+            });
+            
+            setUploading(false);
+
+        } catch (err) {
+            console.error('Upload failed', err);
+            setUploadError('Image upload failed. Please try again.');
+            setUploading(false);
+        }
+    };
     
+    // --- (Submit handler is unchanged) ---
     const onSubmit = async e => {
         e.preventDefault();
         const token = localStorage.getItem('token');
@@ -88,9 +134,8 @@ const EditMyProfile = () => {
         try {
             await axios.put('http://localhost:5000/api/students/me', formData, config);
             setStatusMessage('Profile updated successfully!');
-            setTimeout(() => navigate('/my-profile'), 2000); // <-- Navigate back to MyProfile
+            setTimeout(() => navigate('/my-profile'), 2000);
         } catch (err) {
-            // --- 3. ADD SUSPENSION CHECK ON SUBMIT ---
             if (err.response && (err.response.status === 403 || err.response.status === 401)) {
                 setIsSuspended(true);
                 setSuspensionMessage(err.response.data.msg || 'Your account is suspended.');
@@ -105,7 +150,7 @@ const EditMyProfile = () => {
         return <div className="dashboard-container"><p>Loading your profile...</p></div>;
     }
 
-    // --- 4. ADD RENDER BLOCK FOR SUSPENSION ---
+    // --- (Suspension block is unchanged) ---
     if (isSuspended) {
         return (
             <div className="dashboard-container">
@@ -127,7 +172,6 @@ const EditMyProfile = () => {
             </div>
         );
     }
-    // --- END RENDER BLOCK ---
 
     return (
         <div className="dashboard-container">
@@ -136,6 +180,40 @@ const EditMyProfile = () => {
             
             <form className="admin-form" onSubmit={onSubmit}>
                 <h2>Personal Details</h2>
+                
+                {/* --- *** THIS IS THE UPDATED SECTION *** --- */}
+                {/* The {photo && (...)} wrapper is REMOVED */}
+                <div className="form-group">
+                    <label>Current Photo</label>
+                    <img 
+                        src={photo} 
+                        alt="avatar" 
+                        style={{width: '100px', height: '100px', borderRadius: '50%', marginBottom: '1rem'}}
+                        onError={(e) => { 
+                            e.target.onerror = null; 
+                            e.target.src="https://res.cloudinary.com/dbsovavaw/image/upload/v1762574486/08350cafa4fabb8a6a1be2d9f18f2d88_kqvnyw.jpg" 
+                        }}
+                    />
+                </div>
+                {/* --- *** END OF UPDATE *** --- */}
+                
+                {/* --- (Rest of form is unchanged) --- */}
+                <div className="form-group">
+                    <label>Upload New Photo</label>
+                    <input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={handleImageUpload} 
+                        style={{
+                            background: 'rgba(255,255,255,0.1)', 
+                            border: 'none', 
+                            padding: '0.5rem'
+                        }}
+                    />
+                    {uploading && <p style={{color: '#6e8efb', margin: '0.5rem 0 0 0'}}>Uploading...</p>}
+                    {uploadError && <p className="login-error-message" style={{margin: '0.5rem 0 0 0'}}>{uploadError}</p>}
+                </div>
+                
                 <div className="form-group">
                     <label>First Name</label>
                     <input type="text" name="firstName" value={firstName} onChange={onChange} />
@@ -162,19 +240,19 @@ const EditMyProfile = () => {
                         <input type="tel" name="whatsappNumber" value={whatsappNumber} onChange={onChange} />
                     </div>
                 )}
-                <div className="form-group">
-                    <label>Photo URL</label>
-                    <input type="text" name="photo" value={photo} onChange={onChange} />
-                </div>
+                
+                <input type="hidden" name="photo" value={photo} />
+                
                 <h2>Confidential Information</h2>
                 <div className="form-group">
                     <label>Family Income</label>
                     <input type="number" name="familyIncome" value={familyIncome} onChange={onChange} />
                 </div>
                 
-                <button type="submit" className="form-submit-button">Save Changes</button>
+                <button type="submit" className="form-submit-button" disabled={uploading}>
+                    {uploading ? 'Wait for Upload...' : 'Save Changes'}
+                </button>
                 
-                {/* Display either an error or a success message */}
                 {error && <p className="login-error-message" style={{marginTop: '1rem'}}>{error}</p>}
                 {statusMessage && <p className="form-message" style={{color: '#28a745', marginTop: '1rem'}}>{statusMessage}</p>}
             </form>

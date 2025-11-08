@@ -4,7 +4,6 @@ import axios from 'axios';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 
 const EditStudentProfile = () => {
-    // --- 1. 'marks' REMOVED FROM STATE ---
     const [formData, setFormData] = useState({
         firstName: '',
         surname: '',
@@ -14,8 +13,12 @@ const EditStudentProfile = () => {
         whatsappNumber: '',
         photo: '',
         familyIncome: '',
-        // marks: '', // <-- This field is obsolete
     });
+    
+    // --- State for Uploading ---
+    const [uploading, setUploading] = useState(false);
+    const [uploadError, setUploadError] = useState('');
+
     const [loading, setLoading] = useState(true);
     const [statusMessage, setStatusMessage] = useState('');
     const { userId } = useParams();
@@ -29,7 +32,6 @@ const EditStudentProfile = () => {
             };
             try {
                 const res = await axios.get(`http://localhost:5000/api/students/${userId}`, config);
-                // --- 2. 'marks' REMOVED FROM setFormData ---
                 setFormData({
                     firstName: res.data.firstName || '',
                     surname: res.data.surname || '',
@@ -39,7 +41,6 @@ const EditStudentProfile = () => {
                     whatsappNumber: res.data.whatsappNumber || '',
                     photo: res.data.photo || '',
                     familyIncome: res.data.familyIncome || '',
-                    // marks: res.data.marks || '', // <-- This field is obsolete
                 });
                 setLoading(false);
             } catch (err) {
@@ -51,7 +52,6 @@ const EditStudentProfile = () => {
         fetchProfile();
     }, [userId]);
 
-    // --- 3. 'marks' REMOVED FROM DESTRUCTURING ---
     const { 
         firstName, 
         surname, 
@@ -71,6 +71,47 @@ const EditStudentProfile = () => {
         });
     };
 
+    // --- (Upload handler is unchanged) ---
+    const handleImageUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setUploading(true);
+        setUploadError('');
+
+        try {
+            const token = localStorage.getItem('token');
+            const sigRes = await axios.get('http://localhost:5000/api/upload/signature', {
+                headers: { 'x-auth-token': token }
+            });
+
+            const { signature, timestamp, apiKey, cloudName } = sigRes.data;
+            
+            const uploadFormData = new FormData();
+            uploadFormData.append('file', file);
+            uploadFormData.append('timestamp', timestamp);
+            uploadFormData.append('signature', signature);
+            uploadFormData.append('api_key', apiKey);
+            uploadFormData.append('folder', 'student_profiles');
+
+            const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+            const uploadRes = await axios.post(cloudinaryUrl, uploadFormData);
+
+            setFormData({
+                ...formData,
+                photo: uploadRes.data.secure_url
+            });
+            
+            setUploading(false);
+
+        } catch (err) {
+            console.error('Upload failed', err);
+            setUploadError('Image upload failed. Please try again.');
+            setUploading(false);
+        }
+    };
+
+    // --- (Submit handler is unchanged) ---
     const onSubmit = async e => {
         e.preventDefault();
         const token = localStorage.getItem('token');
@@ -81,7 +122,6 @@ const EditStudentProfile = () => {
             },
         };
         try {
-            // formData no longer contains 'marks', so it won't be sent
             await axios.put(`http://localhost:5000/api/students/${userId}`, formData, config);
             setStatusMessage('Profile updated successfully!');
             setTimeout(() => navigate(`/student/${userId}`), 2000);
@@ -102,6 +142,40 @@ const EditStudentProfile = () => {
             
             <form className="admin-form" onSubmit={onSubmit}>
                 <h2>Personal Details</h2>
+                
+                {/* --- *** THIS IS THE UPDATED SECTION *** --- */}
+                {/* The {photo && (...)} wrapper is REMOVED */}
+                <div className="form-group">
+                    <label>Current Photo</label>
+                    <img 
+                        src={photo} 
+                        alt="avatar" 
+                        style={{width: '100px', height: '100px', borderRadius: '50%', marginBottom: '1rem'}}
+                        onError={(e) => { 
+                            e.target.onerror = null; 
+                            e.target.src="https://res.cloudinary.com/dbsovavaw/image/upload/v1762574486/08350cafa4fabb8a6a1be2d9f18f2d88_kqvnyw.jpg" 
+                        }}
+                    />
+                </div>
+                {/* --- *** END OF UPDATE *** --- */}
+                
+                {/* --- (Rest of form is unchanged) --- */}
+                <div className="form-group">
+                    <label>Upload New Photo</label>
+                    <input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={handleImageUpload} 
+                        style={{
+                            background: 'rgba(255,255,255,0.1)', 
+                            border: 'none', 
+                            padding: '0.5rem'
+                        }}
+                    />
+                    {uploading && <p style={{color: '#6e8efb', margin: '0.5rem 0 0 0'}}>Uploading...</p>}
+                    {uploadError && <p className="login-error-message" style={{margin: '0.5rem 0 0 0'}}>{uploadError}</p>}
+                </div>
+
                 <div className="form-group">
                     <label>First Name</label>
                     <input type="text" name="firstName" value={firstName} onChange={onChange} />
@@ -128,19 +202,18 @@ const EditStudentProfile = () => {
                         <input type="tel" name="whatsappNumber" value={whatsappNumber} onChange={onChange} />
                     </div>
                 )}
-                <div className="form-group">
-                    <label>Photo URL</label>
-                    <input type="text" name="photo" value={photo} onChange={onChange} />
-                </div>
+                
+                <input type="hidden" name="photo" value={photo} />
+                
                 <h2>Confidential Information</h2>
                 <div className="form-group">
                     <label>Family Income</label>
                     <input type="number" name="familyIncome" value={familyIncome} onChange={onChange} />
                 </div>
                 
-                {/* --- 4. ACADEMIC DETAILS SECTION REMOVED FROM HERE --- */}
-                
-                <button type="submit" className="form-submit-button">Save Changes</button>
+                <button type="submit" className="form-submit-button" disabled={uploading}>
+                    {uploading ? 'Wait for Upload...' : 'Save Changes'}
+                </button>
                 {statusMessage && <p className="form-message">{statusMessage}</p>}
             </form>
         </div>

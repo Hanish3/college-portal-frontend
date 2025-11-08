@@ -35,7 +35,7 @@ const FacultyDashboard = () => {
         fetchMyCourses();
     }, []); 
 
-    // --- FIX: Robust Search function ---
+    // --- (Search function is unchanged) ---
     const onSearch = async (e) => {
         e.preventDefault();
         setMessage('Searching...');
@@ -73,14 +73,12 @@ const FacultyDashboard = () => {
             
         } catch (err) {
             console.error(err.response?.data);
-            // FIX: Check for the most likely error message property first
             const errMsg = err.response?.data?.msg || err.message || 'A network error occurred. Check server logs.';
             setError(`Error: ${errMsg}`);
             setMessage('');
             setStudents([]);
         }
     };
-    // --- END FIX ---
 
     if (loading) {
         return <div className="dashboard-container"><p>Loading your courses...</p></div>;
@@ -106,31 +104,36 @@ const FacultyDashboard = () => {
             </div>
             <div className="results-container">
                 
-                {/* FIX: Display error separately from the status/message */}
                 {error && <p className="login-error-message">{error}</p>}
-                
                 {message && <p>{message}</p>}
                 
                 {students.length > 0 && (
-                    <ul>
+                    <div className="item-list" style={{maxHeight: '300px', overflowY: 'auto'}}>
                         {students.map((student) => (
-                            // NOTE: student.user is the User ID used for linking to the profile
                             <Link to={`/student/${student.user}`} key={student._id} className="student-link">
-                                <li className="student-item">
-                                    {/* Placeholder for avatar */}
+                                {/* *** THIS IS THE UPDATED SECTION *** */}
+                                <div className="student-item course-card">
                                     <img 
-                                        src="default-avatar.png"
+                                        src={student.photo} 
                                         alt="avatar" 
-                                        className="avatar" 
+                                        className="profile-avatar"
+                                        style={{width: '50px', height: '50px', margin: 0}}
+                                        onError={(e) => { 
+                                            e.target.onerror = null; 
+                                            e.target.src="https://res.cloudinary.com/dbsovavaw/image/upload/v1762574486/08350cafa4fabb8a6a1be2d9f18f2d88_kqvnyw.jpg" 
+                                        }}
                                     />
-                                    <div className="student-info">
-                                        <strong>{student.firstName} {student.surname}</strong>
-                                        <span>Email: {student.email}</span>
+                                    <div className="student-info course-card-info">
+                                        <h3 style={{margin: 0}}>{student.firstName} {student.surname}</h3>
+                                        <p style={{ margin: '0.25rem 0 0 0', color: '#a0a0b0', fontSize: '0.9rem'}}>
+                                            Email: {student.email}
+                                        </p>
                                     </div>
-                                </li>
+                                </div>
+                                {/* *** END OF UPDATE *** */}
                             </Link>
                         ))}
-                    </ul>
+                    </div>
                 )}
             </div>
             {/* --- END NEW SECTION --- */}
@@ -143,7 +146,9 @@ const FacultyDashboard = () => {
             </h2>
             <p>Here are the courses you are assigned to for this semester.</p>
 
+            {/* ERROR MOVED TO TOP OF PAGE
             {error && <p className="login-error-message">{error}</p>}
+            */}
 
             <div className="course-list">
                 {myCourses.length > 0 ? (
@@ -161,7 +166,6 @@ const FacultyDashboard = () => {
                                 >
                                     Take Attendance
                                 </Link>
-                                {/* We would add the "View Report" link here later */}
                             </div>
                         </div>
                     ))

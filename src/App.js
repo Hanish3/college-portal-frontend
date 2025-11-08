@@ -30,13 +30,15 @@ import ViewSurveyResults from './components/ViewSurveyResults.js';
 import MySurvey from './components/MySurvey.js';
 import FacultyGradebook from './components/FacultyGradebook.js';
 import MyGrades from './components/MyGrades.js';
-
-// --- 1. IMPORT THE NEW EDIT EVENT COMPONENT ---
 import EditEvent from './components/EditEvent.js';
+import StudentMarkAttendance from './components/StudentMarkAttendance.js';
+
+// --- 1. IMPORT THE NEW FOOTER COMPONENT ---
+import Footer from './components/Footer.js';
 
 
 /**
- * This is our new "private" layout.
+ * This is our "private" layout.
  */
 const PrivateLayout = () => {
     return (
@@ -44,6 +46,10 @@ const PrivateLayout = () => {
             <Sidebar />
             <main className="main-content">
                 <Outlet /> {/* Child routes will render here */}
+                
+                {/* --- 2. ADD THE FOOTER HERE --- */}
+                {/* It will appear at the bottom of the scrollable content */}
+                <Footer /> 
             </main>
         </div>
     );
@@ -82,8 +88,6 @@ function App() {
                     <Route path="/admin/mark-attendance/:userId" element={<MarkAttendance />} />
                     <Route path="/admin/edit-course/:courseId" element={<EditCourse />} />
                     <Route path="/admin/survey-results" element={<ViewSurveyResults />} />
-                    
-                    {/* --- 2. ADD THE NEW EDIT EVENT ROUTE --- */}
                     <Route path="/admin/edit-event/:eventId" element={<EditEvent />} />
 
                     {/* (Student Routes) */}
@@ -91,6 +95,7 @@ function App() {
                     <Route path="/student/edit-profile" element={<EditMyProfile />} />
                     <Route path="/my-attendance" element={<MyAttendance />} />
                     <Route path="/my-attendance/:courseId" element={<CourseAttendance />} />
+                    <Route path="/mark-my-attendance" element={<StudentMarkAttendance />} />
                     <Route path="/my-survey" element={<MySurvey />} />
                     <Route path="/my-grades" element={<MyGrades />} />
 

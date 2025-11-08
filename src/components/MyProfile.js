@@ -8,7 +8,7 @@ const MyProfile = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
-    // --- 1. ADD STATE FOR SUSPENSION ---
+    // --- (State for suspension is unchanged) ---
     const [isSuspended, setIsSuspended] = useState(false);
     const [suspensionMessage, setSuspensionMessage] = useState('');
 
@@ -29,7 +29,7 @@ const MyProfile = () => {
                 setProfile(res.data);
                 setLoading(false);
             } catch (err) {
-                // --- 2. ADD SUSPENSION CHECK ---
+                // --- (Suspension check is unchanged) ---
                 if (err.response && (err.response.status === 403 || err.response.status === 401)) {
                     setIsSuspended(true);
                     setSuspensionMessage(err.response.data.msg || 'Your account is suspended.');
@@ -53,7 +53,7 @@ const MyProfile = () => {
         );
     }
 
-    // --- 3. ADD RENDER BLOCK FOR SUSPENSION ---
+    // --- (Suspension render block is unchanged) ---
     if (isSuspended) {
         return (
             <div className="profile-container">
@@ -77,8 +77,6 @@ const MyProfile = () => {
             </div>
         );
     }
-    // --- END RENDER BLOCK ---
-
 
     if (error) {
         return (
@@ -107,14 +105,21 @@ const MyProfile = () => {
             
             <div className="text-center mb-8">
                 <h1>{profile.firstName} {profile.surname}</h1>
+                
+                {/* *** THIS IS THE UPDATED IMAGE TAG *** */}
                 <img 
-                    src={profile.photo || "/default-avatar.png"} 
+                    src={profile.photo} 
                     alt="avatar" 
                     className="profile-avatar" 
-                    onError={(e) => { e.target.onerror = null; e.target.src="/default-avatar.png" }}
+                    onError={(e) => { 
+                        e.target.onerror = null; 
+                        e.target.src="https://res.cloudinary.com/dbsovavaw/image/upload/v1762574486/08350cafa4fabb8a6a1be2d9f18f2d88_kqvnyw.jpg" 
+                    }}
                 />
+                {/* *** END OF UPDATE *** */}
             </div>
             
+            {/* --- (Rest of the page is unchanged) --- */}
             <section className="space-y-6">
                 <div>
                     <h2>Personal Details</h2>

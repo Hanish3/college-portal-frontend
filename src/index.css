@@ -1287,3 +1287,74 @@ button:hover {
     background: #d9534f;
     color: #fff;
 }
+
+/* src/index.css (ADD THIS TO THE END) */
+
+/* --- (All your existing CSS...) --- */
+/* ... */
+/* ... */
+
+/* --- NEW: Styles for Footer --- */
+
+.footer-container {
+    width: 100%;
+    margin-top: 4rem; /* Give it space from the content above */
+    padding: 2.5rem 2rem; /* Consistent padding */
+    background: rgba(13, 17, 23, 0.8); /* Even darker than the sidebar */
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    box-sizing: border-box; /* Include padding in width */
+    border-radius: 12px 12px 0 0; /* Optional: rounds top corners */
+}
+
+.footer-columns {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Responsive columns */
+    gap: 2rem;
+    max-width: 1000px; /* Match the dashboard container width */
+    margin: 0 auto; /* Center the columns */
+    padding-bottom: 2rem;
+}
+
+.footer-column h4 {
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: bold;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.footer-column a {
+    display: block;
+    color: #a0a0b0;
+    text-decoration: none;
+    margin-bottom: 0.75rem;
+    transition: color 0.2s ease;
+}
+
+.footer-column a:hover {
+    color: #6e8efb;
+    text-decoration: underline;
+}
+
+.footer-bottom-bar {
+    max-width: 1000px;
+    margin: 0 auto; /* Center the bottom bar */
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap; /* Allow wrapping on small screens */
+    gap: 1rem;
+    font-size: 0.9rem;
+    color: #a0a0b0;
+}
+
+.developer-credit {
+    font-weight: bold;
+    color: #ffffff; /* Makes your name stand out */
+}
